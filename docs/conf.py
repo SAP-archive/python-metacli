@@ -48,8 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'MetaCLI'
-copyright = u"2019, David Liu"
-author = u"David Liu"
+copyright = u"2019, SAP Ariba Foundation Services"
+author = u"SAP Ariba Foundation Services"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -130,7 +130,7 @@ latex_elements = {
 latex_documents = [
     (master_doc, 'metacli.tex',
      u'MetaCLI Documentation',
-     u'David Liu', 'manual'),
+     u'SAP Ariba Foundation Services', 'manual'),
 ]
 
 
