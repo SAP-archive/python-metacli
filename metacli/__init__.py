@@ -2,6 +2,6 @@
 
 """Top-level package for MetaCLI."""
 
-__author__ = """David Liu"""
+__author__ = """SAP Ariba Foundation Services"""
 __email__ = 'david.liu07@sap.com'
 __version__ = '0.1.0'
