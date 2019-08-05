@@ -107,10 +107,10 @@ class DependencyManagement:
 
         required_packages = self.get_packages_from_setup(packages_location)
 
-        print("Saving required packages in dependencies.txt")
-        # Save the required dependencies in a file dependencies.txt
+        print("Saving required packages in requirements.txt")
+        # Save the required dependencies in a file requirements.txt
 
-        file_path = path + "/dependencies.txt"
+        file_path = path + "/requirements.txt"
 
         with open(file_path, "w") as f:
             for package in required_packages:
@@ -122,7 +122,7 @@ class DependencyManagement:
 
     def check_package_conflicts(self):
         ''' Function to check package conflicts'''
-        print("Checking for package of different versions conflict in dependencies.txt")
+        print("Checking for package of different versions conflict in requirements.txt")
         foundConflict = self.check_packages_different_version()
 
         if not foundConflict:
@@ -188,40 +188,40 @@ class DependencyManagement:
 
     def check_packages_different_version(self):
         '''
-        Checks for packages of different versions in dependencies.txt
+        Checks for packages of different versions in requirements.txt
         '''
 
         all_packages = []
         foundConflict = False
 
-        # Get path to dependencies.rxr
-        path = input("Enter path to base plugin to check the dependencies.txt: ")
+        # Get path to requirements.txt
+        path = input("Enter path to base plugin to check the requirements.txt: ")
         print("Path you enter,", path)
         if not os.path.exists(path):
-            sys.exit("Path does not exist. Cannot check dependencies.txt")
+            sys.exit("Path does not exist. Cannot check requirements.txt")
 
-        file_path = path + "/dependencies.txt"
+        file_path = path + "/requirements.txt"
 
-        # Get packages from dependencies.txt
+        # Get packages from requirements.txt
         try:
             with open(file_path, 'r') as f:
                 for line in f:
                     all_packages.append(line.rstrip())
         except IOError:
-            sys.exit("Could not read file: dependencies.txt \nPlease create file first in base plugin")
+            sys.exit("Could not read file: requirements.txt \nPlease create file first in base plugin")
 
-        # Check if dependencies.txt includes packages of different versions before do pip install
+        # Check if requirements.txt includes packages of different versions before do pip install
         # Create dictionary of required packages that map package to list of different versions found
         dictionary_packages = self.create_packages_dictionary(all_packages)
 
         # List out packages that have different versions for users to look over
         for package_prefix, list_packages in dictionary_packages.items():
             if len(list_packages) > 1:
-                print("Found a package of different versions in dependencies.txt for: " + package_prefix)
+                print("Found a package of different versions in requirements.txt for: " + package_prefix)
                 foundConflict = True
                 for pkg in list_packages:
                     print(pkg)
-                print("Please check the dependencies.txt and pick one you want to use \n")
+                print("Please check the requirements.txt and pick one you want to use \n")
 
         return foundConflict
 
