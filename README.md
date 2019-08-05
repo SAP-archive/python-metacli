@@ -69,9 +69,9 @@ Each { } in modules is a plugin to be added
 
 ### Add Plugin
 
-To add an existing plugins to the base plugin:
+To add existing plugins to the base plugin:
 
-+ Add the decorator, loadPlugin,  to the base plugin based on plugin json file in the cli.py
++ Add the decorator, loadPlugin, to the base plugin in the cli.py based on plugin json file
 
 ```
 from metacli.decorators import loadPlugin
@@ -99,7 +99,7 @@ Support two builtin plugins shell and help:
 
 
 
-To add builtin plugin to base plugin cli.py:
+To add builtin plugins to base plugin cli.py:
 
 ```
 from metacli.decorators import addBuiltin
