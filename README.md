@@ -172,8 +172,8 @@ def base_plugin():
          ```
     + Summarize all logs into user specified log file in base plugin
         ```
-        from metacli.decorators import loadPlugin, loadLogging, addBuiltin
-
+        from metacli.decorators import loadLogging
+        
         @loadLogging(logger_name="<specified_log_file>")
         @click.group()
         def base_plugin():
