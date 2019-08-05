@@ -1,0 +1,10 @@
+{
+  "modules": [
+    {
+      "name": "superman",
+      "click_root": "superman",
+      "package_path": "./",
+      "package_name" : "superman.cli"
+    }
+  ]
+}
