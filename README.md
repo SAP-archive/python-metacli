@@ -134,7 +134,7 @@ def base_plugin():
 ### Run Command Line
 
 + Go into the base plugin folder
-+ Install the base plugin as common Click project: 
++ Install the base plugin as common [Click project](https://palletsprojects.com/p/click/): 
     
     ```
     pip install --editable .
@@ -170,6 +170,17 @@ def base_plugin():
         ```
          <plugin_name> shell
          ```
+         
++ **Dynamic Loading**
+    + Absolute path import between different plugins based on json file
+    + Relative path import in one plugin project based on cli file
+
++ **Dependency Management**
+    + Gather all the required packages in plugins and pip install them
+    + Checks for dead loop for all plugins
+    + Checks for package version conflicts
+
++ **Logging**
     + Summarize all logs into user specified log file in base plugin
         ```
         from metacli.decorators import loadLogging
@@ -180,11 +191,56 @@ def base_plugin():
             pass
         ```
 
-+ **Dependency Management**
-    + Gather all the required packages in plugins and pip install them
-    + Checks for dead loop for all plugins
-    + Checks for package version conflicts
+## Example
+We provide an example to help you construct CLI tools.
 
+In example folder, we have four independent projects, the file structure is:
+
+| -- core\
+| -- dc\
+|&nbsp; &nbsp; &nbsp; &nbsp; |-- superman\
+| -- marvel
+
+All projects satisfy the basic plugin schema we described above, which means you can run them independently.
+We want to construct the plugin tool structure as:
+
+-- core \
+&nbsp; &nbsp; &nbsp; &nbsp;    |-- dc \
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; |-- superman\
+&nbsp; &nbsp; &nbsp; &nbsp;    | -- marvel
+        
+        
+Now we start to do this step by step.
+
+1. Configure json file to construct structure
+
+    In this structure, we need two json files, one is under *core* which will add the *marvel* and *dc*, another is in *dc* which will add *superman*.
+
+    (in our example plugin_commands.json file, we also add mySQLcli and SQLlitecli to show how to add third-party plugins, if you don't need them, feel free to delete them and try our example)
+
+2. Add plugin loader
+
+    In *core* and *dc*, we need to load plugin from json file. So we add the loader on the parent click object through decorator. Two arguments, json_path and base_path, are required here. We need to add loaders in *core.cli.py* and *dc.cli.py*.
+
+3. Collect and install all required packages
+
+    Right now, core is our root. So, we need to do dependency management from core. Firstly, run the example script to collect all packages, the input is current plugin project's relative path. For example, right now we are in core, so the path will be  ```../core```. Alos, you need to input the location where you want to get your requirements.txt. For example, here we also use ```../core```. After deleting conflicts in requirements.txt, you can use pip to install all required packages in one command
+    ```
+    pip install -r requirements.txt
+    ```
+
+4. Install and run CLI tools:
+
+    Now, you can install CLI tools as command click projects.
+    ```
+    cd core/
+    pip install --editable .
+    core --help
+    ```
+
+5. Optional:
+
+    We have provided some built-in plugins(shell, help). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "help" or "shell" indicating help plugin or shell plugin
 
 
 ## Credits
