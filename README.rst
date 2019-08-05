@@ -139,16 +139,13 @@ Run Command Line
 
 Features
 --------
-
-* TODO
-
-* Plugin json file
+* **Plugin json file**
     * Support Relative and Absolute paths
         * Find plugins json file based on module
-        * Relative paths to plugins based on parent module in cli.py
+        * Relative paths to plugins based on parent module
     * Check plugin json file is valid json
 
-* Plugins
+* **Plugins**
     * Support group level plugin based on json
         * Different plugins with same names are allowed in different levels
     * Support plugins functionality without need to change code
@@ -157,14 +154,14 @@ Features
         * Different plugins with same names are allowed in the same level
         * Ability to choose and give meaningful names to the plugins
 
-* Builtin Plugins
+* **Builtin Plugins**
     *  Generate entire command structure and help info
 * >>> <plugin_name> help --display # help.json will be generated and showed in console
     * Support shell prompt
 * >>> <plugin_name> shell
     * Summarize all logs into user specified log file in base plugin
 
-* Dependency Management
+* **Dependency Management**
     * Gather all the required packages in plugins and pip install them
 * >>> cd <base_plugin>/
 * >>> python script_dependency_management.py # requirements.txt will be generated
