@@ -190,7 +190,20 @@ def base_plugin():
         def base_plugin():
             pass
         ```
-
++ **Permission Control**
+    + Add permissions of *admin* and *developer* to Click groups and commands in the cli.py. Default is *developer*.
+    ```
+        from metacli.decorators import permission
+        
+        @permission(level = "developer", root_permission=True)
+        @click.group()
+        def base_plugin():
+            pass
+        ```
+    + Add login / logout features in Click root (when we set root_permission = True). 
+    + Keep login status for 60 seconds after each login
+    + TODO: Verification
+    
 ## Example
 We provide an example to help you construct CLI tools.
 
@@ -238,13 +251,17 @@ Now we start to do this step by step.
     core --help
     ```
 
-5. Optional:
+5. Optional: Builtin Plugins:
 
     We have provided some built-in plugins(shell, help). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "help" or "shell" indicating help plugin or shell plugin
 
+6. Optional: Permission:
+    
+    We can add permission control in our system. After set *core* as permission root, there will be two commands: login / logout under *core*. Also, we wrote some permission controlled commands under *dc*. If you want to run command as admin, please login first. You can choose logout manually or the login status will be expired in 1 min. 
 
 ## Credits
 
 This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template.
+
 
 
