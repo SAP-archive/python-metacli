@@ -78,7 +78,7 @@ def loadLogging(func=None, *, logger_name= "metacli"):
     return wrapper()
 
 
-def permission(func = None, *, level = None, root_permission = False ):
+def permission(func = None, *, level = "none", root_permission = False ):
     '''
 
     :param func: current click.Command / Group

@@ -5,8 +5,6 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
@@ -38,7 +36,7 @@ setup(
     description="Python package to build metadata driven command line tools (CLI) with out-of-the-box REST Swagger/OpenAPI support",
     install_requires=requirements,
     license="Apache Software License 2.0",
-    long_description=readme + '\n\n' + history,
+    long_description=history,
     include_package_data=True,
     keywords='metacli',
     name='metacli',
