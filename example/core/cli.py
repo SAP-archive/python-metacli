@@ -1,7 +1,8 @@
 import click
-from metacli.decorators import loadPlugin, loadLogging, addBuiltin
+from metacli.decorators import loadPlugin, loadLogging, addBuiltin, permission
 
 
+@permission(level = "developer", root_permission=True)
 @loadLogging(logger_name="testdemo")
 @loadPlugin(json_file="./plugin_commands.json",
             base_path=__file__)
