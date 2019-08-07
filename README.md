@@ -199,8 +199,8 @@ def base_plugin():
         @click.group()
         def base_plugin():
             pass
-        ```
-    + Add login / logout features in Click root (when we set root_permission = True). 
+    ```
+    + Add login / logout features in Click root of base plugin (when we set root_permission = True). 
     + Keep login status for 60 seconds after each login
     + TODO: Verification
     
