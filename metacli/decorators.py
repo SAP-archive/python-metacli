@@ -10,12 +10,15 @@ import time
 import warnings
 
 
+import sys
+import stackprinter
+
 def loadPlugin(func=None, *, json_file=None, base_path=None):
     """
     Decorate function to load plugins
     :param func: current click.Command / Group object
     :param json_file: plugin json in next level
-    :param base_path: current plugin cli.py path
+    :param base_path: current plugin metacli.py path
     :return:
     """
     if func is None:
@@ -57,7 +60,7 @@ def addBuiltin(name = None):
     return decorator
 
 
-def loadLogging(func=None, *, logger_name= "metacli"):
+def loadLogging(func=None, *, logger_name="metacli"):
     """
     Decorate function to load logger
     :param func: current click.Command / Group object
@@ -68,14 +71,21 @@ def loadLogging(func=None, *, logger_name= "metacli"):
         return functools.partial(loadLogging, logger_name=logger_name)
 
     @functools.wraps(func)
-    def wrapper():
-        logger = get_logger(logger_name)
-        logger.info("Entering function: %s", func.__dict__["name"])
-        logger.info(click.get_os_args())
+    def wrapper(*args, **kwargs):
 
-        return func
+        try:
+            return func.main(*args, **kwargs)
+        except Exception:
+            logger = get_logger(logger_name)
+            logger.exception("Exception occurred in CatchAllExceptions()")
+            logger.error(stackprinter.format())
+            file_location = logger.handlers[0].baseFilename
+            click.echo("An error occurred during processing. Please check the log file at: " + file_location)
+            sys.exit(1)
 
     return wrapper()
+
+
 
 
 def permission(func = None, *, level = "none", root_permission = False ):

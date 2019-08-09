@@ -35,6 +35,10 @@ setup(
     ],
     description="Python package to build metadata driven command line tools (CLI) with out-of-the-box REST Swagger/OpenAPI support",
     install_requires=requirements,
+    entry_points='''
+    [console_scripts]
+    metacli=metacli.metacli:metacli
+    ''',
     license="Apache Software License 2.0",
     long_description=history,
     include_package_data=True,
