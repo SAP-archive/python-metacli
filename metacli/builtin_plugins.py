@@ -11,10 +11,10 @@ def shell():
     repl(click.get_current_context())
 
 
-@click.command('help')
+@click.command('schema')
 @click.option('--display', is_flag=True, help='show cmd structure in console')
 @click.pass_context
-def help(ctx, display):
+def schema(ctx, display):
     """Generate cmd structure json and get help info"""
     # get parent object
     root = click.get_current_context().__dict__['parent'].__dict__['command']

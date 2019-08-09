@@ -1,5 +1,5 @@
 import functools
-from .builtin_plugins import shell, help, login, logout
+from .builtin_plugins import shell, schema, login, logout
 from .util import check_valid_json, get_logger
 from .plugin import PluginLoader
 import pathlib
@@ -88,7 +88,7 @@ def loadLogging(func=None, *, logger_name="metacli"):
 
 
 
-def permission(func = None, *, level = "none", root_permission = False ):
+def permission(func = None, *, level = "developer", root_permission = False ):
     '''
 
     :param func: current click.Command / Group
@@ -102,27 +102,27 @@ def permission(func = None, *, level = "none", root_permission = False ):
     @functools.wraps(func)
     def wrapper():
 
+        setattr(func, "permission", level)
+
         if root_permission:
             for name in ['login', 'logout']:
                 root = globals()[name]
                 func.add_command(root)
 
-        userlevel = "none"
+        userlevel = "developer"
         if os.path.exists(".temp.txt"):
             with open(".temp.txt", "r") as f:
                 userlevel, timestamp = f.readline().rstrip().split("$")
                 if time.time() - float(timestamp) > 60:
                     warnings.warn("Login Timeout", Warning)
                     os.remove(".temp.txt")
-                    userlevel = "none"
+                    userlevel = "developer"
 
-        valid_levels = ["developer", "admin", "none"]
+        valid_levels = ["developer", "admin"]
         if level not in valid_levels or userlevel not in valid_levels:
             raise NameError("Not a valid level. Cannot add permission")
         else:
-            if userlevel == "none" and level == "admin":
-                func.hidden = True
-            elif userlevel == "developer" and level == "admin":
+            if userlevel == "developer" and level == "admin":
                 func.hidden = True
             else:
                 func.hidden = False

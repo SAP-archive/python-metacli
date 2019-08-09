@@ -27,7 +27,7 @@ def check_valid_json(json_path):
             print("text is not json", e)
 
 
-def get_help_info(info, filename="help.json", display=False):
+def get_help_info(info, filename="schema.json", display=False):
     """
     :param info: click.Group object where the root information from
     :param display: boolean, true means show structure in console
@@ -43,8 +43,8 @@ def get_help_info(info, filename="help.json", display=False):
     if display:
         print(json.dumps(help_info, indent=2))
 
-    if os.path.exists("help.json"):
-        print("Generate help info in help.json")
+    if os.path.exists(filename):
+        print("Generate help info in schema.json")
 
 
 
@@ -57,6 +57,7 @@ def get_help_info_dfs(info):
 
     group_info = {"name": group['name'],
                   "help": group["help"],
+                  "permission": get_permission_level(info),
                   "hidden": group['hidden'],
                   "groups": [],
                   "commands": [],
@@ -70,6 +71,7 @@ def get_help_info_dfs(info):
             command_info = obj.__dict__
             cmd = {"name" : command_info['name'],
                    "help" : command_info['help'],
+                   "permission": get_permission_level(obj),
                    "hidden": command_info['hidden'],
                    "params": get_param_info(obj)}
             group_info["commands"].append(cmd)
@@ -98,6 +100,13 @@ def get_param_info(info):
         params_info.append(param_info)
 
     return params_info
+
+
+def get_permission_level(info):
+    if "permission" in info.__dict__:
+        return info.__dict__["permission"]
+    else:
+        return "developer"
 
 
 # Get logger to write to log file.
