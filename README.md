@@ -44,7 +44,6 @@ As a valid plugin, you need to include these three files:
 To make the plugin as your base plugin, you need to include two more files:
 
 + plugin_commands.json
-+ script_dependency_management.py (can be any name)
 
 ### Configure plugin json file
 
@@ -54,10 +53,10 @@ Schema for the valid plugin json file:
  {
    "modules" : [
        {
-        "name" : "name of plugin shown in command line",
-        "click_root" : "the root command / group in cli.py",
-        "package_path" : "relative path to plugin folder",
-        "package_name" : "<plugin_folder_name>.<cli.py>"
+        "name" : <name of plugin shown in command line>,
+        "click_root" : <the root command / group in cli.py>,
+        "package_path" : <relative path to plugin folder>,
+        "package_name" : <plugin_folder_name>.<cli.py>
        }
    ]
  }
@@ -113,11 +112,11 @@ def base_plugin():
 
 ### Run Dependency Management
 
-+ Create a script in the base plugin ( script_dependency_management.py ). We have a template in metacli/example/core
-+ Run script to generate requirements.txt: 
++ Run dependency management in the console as a command line to generate requirements.txt: 
     ```
-    python script_dependency_management.py
+    metacli dependency_management
     ```
+    + Note: enter the absolute path to the base plugin folder 
 + Check package conflicts
     + Check the console for messages about "Found a package of different versions in requirements.txt."
     + Go through the requirements.txt and pick the version that best fits your plugin
@@ -125,10 +124,10 @@ def base_plugin():
     ``` 
     pip install -r requirements.txt
     ```
-    + Come across the error "Double Requirement given", try: 
-        ``` 
-        cat dependencies.txt | xargs -n 1 pip install
-        ```
+ + If you choose to not resolve the package conflicts and want to install the first appeared version of the conflict packages, try: 
+    ``` 
+    cat dependencies.txt | xargs -n 1 pip install
+    ```
 
 
 ### Run Command Line
@@ -182,14 +181,24 @@ def base_plugin():
 
 + **Logging**
     + Summarize all logs into user specified log file in base plugin
+    + Catch all exceptions into user specified log file in base plugin
         ```
         from metacli.decorators import loadLogging
+        from metacli.util import get_logger
         
-        @loadLogging(logger_name="<specified_log_file>")
+        @loadLogging(logger_name=<specified_log_file>)
         @click.group()
-        def base_plugin():
-            pass
+        def base_plugin(ctx):
+            if ctx.obj:
+                return
+
+            logger = get_logger("demotest")
+
+            ctx.obj = {
+                "logger": logger
+            }
         ```
+     + Can specify different log files for different plugins. However, we recommend using the same log file for all the plugins
 + **Permission Control**
     + Add permissions of *admin* and *developer* to Click groups and commands in the cli.py. Default is *developer*.
     ```
@@ -237,7 +246,11 @@ Now we start to do this step by step.
 
 3. Collect and install all required packages
 
-    Right now, core is our root. So, we need to do dependency management from core. Firstly, run the example script to collect all packages, the input is current plugin project's relative path. For example, right now we are in core, so the path will be  ```../core```. Alos, you need to input the location where you want to get your requirements.txt. For example, here we also use ```../core```. After deleting conflicts in requirements.txt, you can use pip to install all required packages in one command
+    Right now, core is our root. So, we need to do dependency management from core. Firstly, run dependency management in the console as a command line to collect all packages
+    ```
+    metacli dependency_management
+    ```
+    The input is current plugin project's absolute path. For example, right now we are in core, so the path will be  ```~/metacli/example/core```. Also, you need to input the location where you want to get your requirements.txt. For example, here we also use ```~/metacli/example/core```. After deleting conflicts in requirements.txt, you can use pip to install all required packages in one command
     ```
     pip install -r requirements.txt
     ```
