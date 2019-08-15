@@ -86,9 +86,7 @@ def loadLogging(func=None, *, logger_name="metacli"):
     return wrapper()
 
 
-
-
-def permission(func = None, *, level = "developer", root_permission = False ):
+def permission(func = None, *, level = "developer", root_permission = False):
     '''
 
     :param func: current click.Command / Group
@@ -103,8 +101,8 @@ def permission(func = None, *, level = "developer", root_permission = False ):
     def wrapper():
 
         setattr(func, "permission", level)
-
         if root_permission:
+
             for name in ['login', 'logout']:
                 root = globals()[name]
                 func.add_command(root)

@@ -1,27 +1,25 @@
 import click
-from metacli.decorators import loadPlugin, permission
+from metacli.decorators import loadPlugin, permission, addBuiltin
 from metacli.util import get_logger
 
 
-@permission(level = "developer")
 @loadPlugin(json_file="./plugin_commands.json",
             base_path=__file__)
-@click.group(hidden=True)
+@addBuiltin(name="schema")
+@click.group()
 @click.pass_context
 def dc(ctx):
-
+    """Test with DC superherors"""
     logger = get_logger("demotest")
-
     ctx.obj = {
         "logger": logger
     }
 
-    """Test with DC superherors"""
     ctx.obj['logger'].info("dc entry root")
     ctx.obj['logger'].info(click.get_os_args())
 
 
-
+@permission(level = "developer")
 @click.option("--name",
               help="input your name",
               default="")

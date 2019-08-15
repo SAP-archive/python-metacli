@@ -4,9 +4,7 @@ import click
 @click.pass_context
 def marvel(ctx):
     """Test with marvel superherors"""
-    ctx.obj['logger'].info("marvel entry root")
-    ctx.obj['logger'].info(click.get_os_args())
-    #pass
+    pass
 
 @click.option("--name",
               help="input your name",
@@ -17,17 +15,14 @@ def marvel(ctx):
 def marvel_welcome(ctx, name):
     """show marvel welcome"""
     click.echo("Hello " + name +  " Marvel World ")
-    ctx.obj['logger'].info("marvel welcome")
-    ctx.obj['logger'].info(click.get_os_args())
-    ctx.obj['logger'].info("Hello " + name + " Marvel World")
+
 
 
 @marvel.group("ironman")
 @click.pass_context
 def ironman(ctx):
     """Ironman"""
-    ctx.obj['logger'].info("ironman under marvel entry root")
-    ctx.obj['logger'].info(click.get_os_args())
+    pass
 
 
 
@@ -36,10 +31,6 @@ def ironman(ctx):
 def ironman_welcome(ctx):
     """show ironman """
     click.echo("Hello Ironman under marvel")
-    ctx.obj['logger'].info("ironman under marvel welcome")
-    ctx.obj['logger'].info(click.get_os_args())
-    ctx.obj['logger'].info("Hello Ironman under marvel DC World")
-
 
 
 """
@@ -74,8 +65,7 @@ command structure:
 @click.pass_context
 def a(ctx):
     """a under marvel"""
-    ctx.obj['logger'].info("a under marvel entry root")
-    ctx.obj['logger'].info(click.get_os_args())
+    pass
 
 
 @a.command("welcome")
@@ -83,9 +73,6 @@ def a(ctx):
 def a_welcome(ctx):
     """show a """
     click.echo("Hello a under marvel")
-    ctx.obj['logger'].info("a under marvel welcome")
-    ctx.obj['logger'].info(click.get_os_args())
-    ctx.obj['logger'].info("Hello a under marvel")
 
 
 #########################
@@ -93,8 +80,7 @@ def a_welcome(ctx):
 @click.pass_context
 def a(ctx):
     """a under ironman"""
-    ctx.obj['logger'].info("a under ironman entry root")
-    ctx.obj['logger'].info(click.get_os_args())
+    pass
 
 
 @a.command("welcome")
@@ -102,6 +88,3 @@ def a(ctx):
 def a_welcome(ctx):
     """show a """
     click.echo("Hello a under ironman")
-    ctx.obj['logger'].info("a under ironman welcome")
-    ctx.obj['logger'].info(click.get_os_args())
-    ctx.obj['logger'].info("Hello a under ironman")
