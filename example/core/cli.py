@@ -2,8 +2,10 @@ import click
 from metacli.decorators import loadPlugin, addBuiltin, permission, loadLogging
 from metacli.util import get_logger
 
+
 @loadLogging(logger_name="demotest")
 @permission(root_permission=True)
+@addBuiltin(name="shell")
 @addBuiltin(name="schema")
 @loadPlugin(json_file="./plugin_commands.json",
             base_path=__file__)
