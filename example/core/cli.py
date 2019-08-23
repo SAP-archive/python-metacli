@@ -3,7 +3,7 @@ from metacli.decorators import loadPlugin, addBuiltin, permission, loadLogging
 from metacli.util import get_logger
 
 
-@loadLogging(logger_name="demotest")
+@loadLogging(logger_name="demotest2")
 @permission(root_permission=True)
 @addBuiltin(name="shell")
 @addBuiltin(name="schema")
@@ -17,9 +17,15 @@ def core(ctx):
     if ctx.obj:
         return
 
-    logger = get_logger("demotest")
+
+    logger = get_logger("demotest2")
 
     logger.info("hello")
+
+    # ctx.obj = {
+    #     "logger": logger,
+    #     "test" : "test"
+    # }
 
 if __name__ == '__main__':
     core()

@@ -45,7 +45,7 @@ def b(ctx, foo):
 @click.pass_context
 def save(ctx, s):
     click.echo("save")
-    click.echo('Verbosity: %s' % s)
+    click.echo('msg: %s' % s)
 
 
 @test.command()
@@ -87,7 +87,7 @@ def findme(ctx, pos):
     click.echo('%s / %s' % pos)
 
 @test.command()
-@click.option('--item', type=(str, int))
+@click.option('--item', type=(str, int), default=("yi", 1))
 @click.pass_context
 def putitem(ctx, item):
     click.echo('name=%s id=%d' % item)
@@ -131,7 +131,7 @@ def print(ctx):
 @click.pass_context
 def save(ctx, s):
     click.echo("save")
-    click.echo('Verbosity: %s' % s)
+    click.echo('msg: %s' % s)
 
 
 @counting.command()

@@ -31,7 +31,7 @@ def dc(ctx):
 def welcome(ctx, name):
     """show DC welcome"""
     click.echo("Hello " + name +  " DC World ")
-
+    #
     # ctx.obj['logger'].info("dc welcome")
     # ctx.obj['logger'].info(click.get_os_args())
     # ctx.obj['logger'].info("Hello " + name + " DC World")

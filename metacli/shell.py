@@ -29,9 +29,7 @@ class Shell(MainShell):
 
         try:
             with open(file, "rb") as f:
-                print("open file in load parameter file")
                 self.parameters = pickle.load(f)
-
         except Exception as e:
             self.parameters = {}
 
@@ -105,7 +103,6 @@ class Shell(MainShell):
         self.save_parameters_file()
 
         # resetting the parameters for each loop to avoid unexpected key error
-
         context.__dict__["params"] = {}
 
     def save_parameters_file(self):
@@ -114,7 +111,6 @@ class Shell(MainShell):
         file = ".parameters_history"
 
         with open(file, "wb") as f:
-            print("open file in save parameters file")
             pickle.dump(self.parameters, f)
 
     def do_exit(self):
@@ -122,8 +118,8 @@ class Shell(MainShell):
         print("Exiting")
         return True
 
-    def do_list(self):
-        ''' list all the commands '''
+    def do_show(self):
+        ''' show all the commands '''
         print("Available commands for use")
         for command in self.available_commands:
             print(command)
@@ -148,38 +144,71 @@ class Shell(MainShell):
         :return: list of parameters
         '''
 
-        saved_args_list = None
 
-        # new_args_list hold the list of parameters return and used when run command
-        new_args_list = []
+        # saved_args_list hold the list of parameters return and used when run command
+        saved_args_list = []
+
+        # values used to indicate the type of param (saved, default) and its value
+        param_type = ""
+        param_value = []
 
         # Get the saved parameters from dictionary
         if command.params:
             for param in command.params:
+
                 param_name = param.__dict__["name"]
-                if param_name in self.parameters:
-                    saved_args_list = self.parameters[param_name]
+                param_opts = param.__dict__["opts"]
+                param_count = param.__dict__["count"]
+                param_default = param.__dict__["default"]
+                param_multiple = param.__dict__["multiple"]
+
+                if param_opts:
+                    opt = param_opts[0]
+                    value = ""
+
+                    # get the type of parameter and its value
+                    if param_name in self.parameters:
+                        value = self.parameters[param_name][-1]
+                        param_type = "saved"
+                    elif param_default is not None:
+                        value = param_default
+                        param_type = "default"
+                    else:
+                        sys.exit("Required parameter " + param_name + " needs to be set.")
+
+                    # format parameters for hint message
+                    if isinstance(value, str) and not value:
+                        param_value.append(opt + " = ''")
+                    else:
+                        param_value.append(opt + " = " + str(value))
+
+                    # create args list for parsing command
+                    if param_count:
+                        for i in range(0, value):
+                            saved_args_list.append(opt)
+                    elif param_multiple:
+                        for arg in value:
+                            saved_args_list.append(opt)
+                            saved_args_list.append(arg)
+                    elif isinstance(value, tuple):
+                        saved_args_list.append(opt)
+                        for arg in value:
+                            saved_args_list.append(arg)
+                    else:
+                        saved_args_list.append(opt)
+                        saved_args_list.append(value)
+
                 else:
-                    sys.exit("Required parameter" + param_name + " to be set.")
+                    sys.exit("Required parameter " + param_name + " needs to be set.")
+
+        return param_type, param_value, saved_args_list
 
 
-
-        # Used the saved parameters value if found
-        # Else used the current parameters passed now
-        # TODO determine when should return saved or current parameters
-        # TODO how user specify want to use saved parameters
-        if saved_args_list is not None:
-            if isinstance(saved_args_list, tuple):
-                for arg in saved_args_list:
-                    new_args_list.append(arg)
-            else:
-                new_args_list.append(saved_args_list)
-
-            print("found saved parameters")
-            print("saved: ", new_args_list)
-
-        return new_args_list
-
+    def do_history(self):
+        print("History of parameters")
+        for param, value in self.parameters.items():
+            print("parameter: " + param)
+            print("values: " + str(value))
 
     def set_context_obj(self, context):
         ''' Set context object to save parameter value'''
@@ -189,6 +218,27 @@ class Shell(MainShell):
         for param, value in context_parameters.items():
             context.obj[param] = value
 
+
+    def parse_parameters_and_update_dictionary(self, ctx, args, command):
+        """
+        Parse parameters of command in context and update param dictionary with new param values
+        :param ctx: context of the command
+        :param args: parameters passed in to command
+        :param command: command run in the shell
+        """
+
+        # parse the parameters passed in context
+        command.parse_args(ctx, args)
+
+        # For commands that are Groups, want to save the parameters to the context object
+        # to be used for commands in that Group
+        if isinstance(command, click.Group):
+            self.set_context_obj(ctx)
+
+        ctx.forward(command)
+
+        # updates parameter value to dictionary
+        self.update_parameter_dict(command, ctx)
 
 
     def default(self, line):
@@ -201,14 +251,17 @@ class Shell(MainShell):
         subcommand = line.split()[0]
         args = line.split()[1:]
 
-
         # check user enter quit command
         if subcommand == ":q":
             return self.do_exit()
 
         # check user enter help command
         if subcommand == "--help":
-            return self.do_list()
+            return self.do_show()
+
+        # check user enter history command
+        if subcommand == "--history":
+            return self.do_history()
 
         subcommand = self.ctx.command.commands.get(subcommand)
 
@@ -219,48 +272,37 @@ class Shell(MainShell):
 
                 new_ctx = click.Context(subcommand)
 
-                # TODO: determine whether to use the saved parameters or not
-                # if not args:
-                #     # get saved parameters if user not passed any
-                #     args = self.get_saved_parameters(subcommand)
-
                 if args:
+                    self.parse_parameters_and_update_dictionary(new_ctx, args, subcommand)
+                else:
+                    # get saved or default parameters if user not passed any args and provide as hint
+                    arg_type, arg_values, saved_args = self.get_saved_parameters(subcommand)
 
-                    # TODO: determine whether to use the saved parameters or not
-                    # automatically use whatever parameters currently passed, not saved
-                    #args = self.get_saved_parameters(subcommand, args)
+                    if arg_values:
 
-
-
-                    # parse parameters passed in
-                    subcommand.parse_args(new_ctx, args)
-
-                    self.set_context_obj(new_ctx)
-                    # automatically adds new parameter value to dictionary
-                    self.update_parameter_dict(subcommand, new_ctx)
+                        saved_args_stmt = ", ".join(arg_values)
+                        print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
+                        self.parse_parameters_and_update_dictionary(new_ctx, saved_args, subcommand)
 
                 new_repl = Shell(new_ctx)
                 new_repl.cmdloop()
 
             else:
-
                 if args:
-
-                    ## TODO: determine whether to use the saved parameters or not
-                    # automatically use whatever parameters currently passed, not saved
-                    #args = self.get_saved_parameters(subcommand, args)
-
-                    # parse parameters passed in and then invoke the command
-                    subcommand.parse_args(self.ctx, args)
-                    self.ctx.forward(subcommand)
-
-                    # automatically adds new parameter value to dictionary
-                    self.update_parameter_dict(subcommand, self.ctx)
-
+                    self.parse_parameters_and_update_dictionary(self.ctx, args, subcommand)
                 else:
+                    # get saved or default parameters if user not passed any args
+                    arg_type, arg_values, saved_args = self.get_saved_parameters(subcommand)
 
-                    # invoke the command
-                    self.ctx.invoke(subcommand)
+                    if arg_values:
+
+                        saved_args_stmt = ", ".join(arg_values)
+                        print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
+                        self.parse_parameters_and_update_dictionary(self.ctx, saved_args, subcommand)
+
+                    else:
+                        # invoke the command
+                        self.ctx.invoke(subcommand)
 
         else:
             return cmd.Cmd.default(self, line)

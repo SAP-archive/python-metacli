@@ -14,8 +14,8 @@ def superman(ctx):
     #     "logger": logger
     # }
     #
-    # ctx.obj['logger'].info("superman entry root")
-    # ctx.obj['logger'].info(click.get_os_args())
+    #ctx.obj['logger'].info("superman entry root")
+    #ctx.obj['logger'].info(click.get_os_args())
 
     logger.info("superman entry root")
     logger.info(click.get_os_args())
@@ -36,3 +36,14 @@ def welcome(ctx, name):
 
 
 
+@click.option("--name",
+              help="input your name")
+
+@superman.command("greeting")
+@click.pass_context
+def greeting(ctx, name):
+    """show superman welcome"""
+    click.echo("Greeting " + name +  " superman ")
+    # ctx.obj['logger'].info("superman welcome")
+    # ctx.obj['logger'].info(click.get_os_args())
+    # ctx.obj['logger'].info("Hello " + name + " superman")
