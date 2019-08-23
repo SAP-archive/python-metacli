@@ -91,9 +91,9 @@ Parameters:
 Support third-party plugins that are based on click. Add them in same way add plugins.
 
 #### Builtin Plugin
-Support two builtin plugins shell and help:
+Support two builtin plugins shell and schema:
 
-+ help: generate entire cmd structure json for all plugins and get help info
++ schema: generate entire cmd structure json for all plugins and get help info
 + shell: generate a prompt (just like shell )
 
 
@@ -103,7 +103,7 @@ To add builtin plugins to base plugin cli.py:
 ```
 from metacli.decorators import addBuiltin
 
-@addBuiltin(name="help")
+@addBuiltin(name="schema")
 @addBuiltin(name="shell")
 @click.group()
 def base_plugin():
@@ -163,13 +163,28 @@ def base_plugin():
 + **Builtin Plugins**
     +  Generate entire command structure and help info
         ```
-         <plugin_name> help --display # help.json will be generated and showed in console
+         <plugin_name> schema --display # help.json will be generated and showed in console
          ```
     + Support shell prompt
         ```
          <plugin_name> shell
          ```
-         
+        + Logs all the commands run in the shell in generated file shell_history
+        + Saves all parameter values in hidden file parameters_history
+        + Loads the latest saved parameter for use in the shell
+        + Built in Commands:
+            ```
+             <plugin_name> > :q
+            ```
+            + Use *:q* to quit the shell
+            ```
+            <plugin_name> > --help
+            ```
+            + Use *--help* to show all the available commmands that can be used
+            ```
+            <plugin_name> > --history
+            ```
+            + Use *--history* to show all saved parameter values
 + **Dynamic Loading**
     + Absolute path import between different plugins based on json file
     + Relative path import in one plugin project based on cli file
@@ -266,7 +281,7 @@ Now we start to do this step by step.
 
 5. Optional: Builtin Plugins:
 
-    We have provided some built-in plugins(shell, help). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "help" or "shell" indicating help plugin or shell plugin
+    We have provided some built-in plugins(shell, help). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "schema" or "shell" indicating help plugin or shell plugin
 
 6. Optional: Permission:
     
