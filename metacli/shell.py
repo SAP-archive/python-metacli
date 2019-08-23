@@ -33,8 +33,6 @@ class Shell(MainShell):
         except Exception as e:
             self.parameters = {}
 
-        print("param dict, ", self.parameters)
-
     def log_shell_history(self, line):
         ''' log commands run in shell to file '''
 
@@ -59,11 +57,12 @@ class Shell(MainShell):
                 f.write("\n\n")
         else:
             shell_stmt = "shell: " + self.prompt
+            cmd_stmt = "command: " + line
 
             with open(file, "a") as f:
                 json.dump(shell_stmt, f)
                 f.write("\n")
-                json.dump(line, f)
+                json.dump(cmd_stmt, f)
                 f.write("\n\n")
 
     def precmd(self, line):
@@ -85,6 +84,7 @@ class Shell(MainShell):
 
         context_parameters = context.__dict__["params"]
 
+        # Get the latest param values from context and update dictionary
         if command.params:
             for param in command.params:
 
@@ -97,12 +97,10 @@ class Shell(MainShell):
                     else:
                         self.parameters[param_name].append(context_parameters[param_name])
 
-        print("param dict, ", self.parameters)
-
-        # save the parameters to always get the latest value
+        # Save the parameters to file to always get the latest value
         self.save_parameters_file()
 
-        # resetting the parameters for each loop to avoid unexpected key error
+        # Reset the parameters in context for each loop to avoid unexpected key error
         context.__dict__["params"] = {}
 
     def save_parameters_file(self):
@@ -144,7 +142,6 @@ class Shell(MainShell):
         :return: list of parameters
         '''
 
-
         # saved_args_list hold the list of parameters return and used when run command
         saved_args_list = []
 
@@ -164,7 +161,7 @@ class Shell(MainShell):
 
                 if param_opts:
                     opt = param_opts[0]
-                    value = ""
+                    # value = ""
 
                     # get the type of parameter and its value
                     if param_name in self.parameters:
@@ -182,7 +179,7 @@ class Shell(MainShell):
                     else:
                         param_value.append(opt + " = " + str(value))
 
-                    # create args list for parsing command
+                    # create args list for parsing command based on option type
                     if param_count:
                         for i in range(0, value):
                             saved_args_list.append(opt)
@@ -203,7 +200,6 @@ class Shell(MainShell):
 
         return param_type, param_value, saved_args_list
 
-
     def do_history(self):
         print("History of parameters")
         for param, value in self.parameters.items():
@@ -218,7 +214,6 @@ class Shell(MainShell):
         for param, value in context_parameters.items():
             context.obj[param] = value
 
-
     def parse_parameters_and_update_dictionary(self, ctx, args, command):
         """
         Parse parameters of command in context and update param dictionary with new param values
@@ -230,16 +225,16 @@ class Shell(MainShell):
         # parse the parameters passed in context
         command.parse_args(ctx, args)
 
-        # For commands that are Groups, want to save the parameters to the context object
-        # to be used for commands in that Group
+        # For commands that are Groups, before invoking those commands, need to save the parameters
+        # to the context object to allow commands under that Group to use those parameters
         if isinstance(command, click.Group):
             self.set_context_obj(ctx)
 
+        # invoke the command
         ctx.forward(command)
 
         # updates parameter value to dictionary
         self.update_parameter_dict(command, ctx)
-
 
     def default(self, line):
         """
@@ -273,15 +268,17 @@ class Shell(MainShell):
                 new_ctx = click.Context(subcommand)
 
                 if args:
+                    # parse the parameters in context of command, invoke the command, and update saved values
                     self.parse_parameters_and_update_dictionary(new_ctx, args, subcommand)
                 else:
-                    # get saved or default parameters if user not passed any args and provide as hint
+                    # get saved or default parameters if user has not passed any args and provide as hint
                     arg_type, arg_values, saved_args = self.get_saved_parameters(subcommand)
 
                     if arg_values:
-
                         saved_args_stmt = ", ".join(arg_values)
                         print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
+
+                        # parse the parameters in context of command, invoke the command, and update saved values
                         self.parse_parameters_and_update_dictionary(new_ctx, saved_args, subcommand)
 
                 new_repl = Shell(new_ctx)
@@ -289,19 +286,21 @@ class Shell(MainShell):
 
             else:
                 if args:
+                    # parse the parameters in context of command, invoke the command, and update saved values
                     self.parse_parameters_and_update_dictionary(self.ctx, args, subcommand)
                 else:
-                    # get saved or default parameters if user not passed any args
+                    # get saved or default parameters if user has not passed any args and provide as hint
                     arg_type, arg_values, saved_args = self.get_saved_parameters(subcommand)
 
                     if arg_values:
-
                         saved_args_stmt = ", ".join(arg_values)
                         print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
+
+                        # parse the parameters in context of command, invoke the command, and update saved values
                         self.parse_parameters_and_update_dictionary(self.ctx, saved_args, subcommand)
 
                     else:
-                        # invoke the command
+                        # invoke the command directly if no args
                         self.ctx.invoke(subcommand)
 
         else:
