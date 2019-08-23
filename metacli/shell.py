@@ -33,6 +33,14 @@ class Shell(MainShell):
         except Exception as e:
             self.parameters = {}
 
+    def save_parameters_file(self):
+        ''' Save the parameters dict in hidden file '''
+
+        file = ".parameters_history"
+
+        with open(file, "wb") as f:
+            pickle.dump(self.parameters, f)
+
     def log_shell_history(self, line):
         ''' log commands run in shell to file '''
 
@@ -64,63 +72,6 @@ class Shell(MainShell):
                 f.write("\n")
                 json.dump(cmd_stmt, f)
                 f.write("\n\n")
-
-    def precmd(self, line):
-        ''' Overwrite precmd command to load saved parameters and history
-        :param line: command run in shell
-        :return: command run in shell
-        '''
-
-        # log the commands information
-        self.log_shell_history(line)
-
-        # each time load saved parameters in case value changes
-        self.load_parameters_file()
-
-        return line
-
-    def update_parameter_dict(self, command, context):
-        ''' Update the parameter dictionary object with new values '''
-
-        context_parameters = context.__dict__["params"]
-
-        # Get the latest param values from context and update dictionary
-        if command.params:
-            for param in command.params:
-
-                param_name = param.__dict__["name"]
-                param_type = param.__dict__["type"]
-
-                if param_name in context_parameters and not isinstance(param_type, click.types.BoolParamType):
-                    if param_name not in self.parameters:
-                        self.parameters[param_name] = [context_parameters[param_name], ]
-                    else:
-                        self.parameters[param_name].append(context_parameters[param_name])
-
-        # Save the parameters to file to always get the latest value
-        self.save_parameters_file()
-
-        # Reset the parameters in context for each loop to avoid unexpected key error
-        context.__dict__["params"] = {}
-
-    def save_parameters_file(self):
-        ''' Save the parameters dict in hidden file '''
-
-        file = ".parameters_history"
-
-        with open(file, "wb") as f:
-            pickle.dump(self.parameters, f)
-
-    def do_exit(self):
-        ''' Exit the shell '''
-        print("Exiting")
-        return True
-
-    def do_show(self):
-        ''' show all the commands '''
-        print("Available commands for use")
-        for command in self.available_commands:
-            print(command)
 
     def get_available_commands(self):
         ''' Get the commands user able to access based on permission'''
@@ -200,12 +151,6 @@ class Shell(MainShell):
 
         return param_type, param_value, saved_args_list
 
-    def do_history(self):
-        print("History of parameters")
-        for param, value in self.parameters.items():
-            print("parameter: " + param)
-            print("values: " + str(value))
-
     def set_context_obj(self, context):
         ''' Set context object to save parameter value'''
 
@@ -213,6 +158,30 @@ class Shell(MainShell):
         context_parameters = context.__dict__["params"]
         for param, value in context_parameters.items():
             context.obj[param] = value
+
+    def update_parameter_dict(self, command, context):
+        ''' Update the parameter dictionary object with new values '''
+
+        context_parameters = context.__dict__["params"]
+
+        # Get the latest param values from context and update dictionary
+        if command.params:
+            for param in command.params:
+
+                param_name = param.__dict__["name"]
+                param_type = param.__dict__["type"]
+
+                if param_name in context_parameters and not isinstance(param_type, click.types.BoolParamType):
+                    if param_name not in self.parameters:
+                        self.parameters[param_name] = [context_parameters[param_name], ]
+                    else:
+                        self.parameters[param_name].append(context_parameters[param_name])
+
+        # Save the parameters to file to always get the latest value
+        self.save_parameters_file()
+
+        # Reset the parameters in context for each loop to avoid unexpected key error
+        context.__dict__["params"] = {}
 
     def parse_parameters_and_update_dictionary(self, ctx, args, command):
         """
@@ -235,6 +204,37 @@ class Shell(MainShell):
 
         # updates parameter value to dictionary
         self.update_parameter_dict(command, ctx)
+
+    def do_exit(self):
+        ''' Exit the shell '''
+        print("Exiting")
+        return True
+
+    def do_show(self):
+        ''' show all the commands '''
+        print("Available commands for use")
+        for command in self.available_commands:
+            print(command)
+
+    def do_history(self):
+        print("History of parameters")
+        for param, value in self.parameters.items():
+            print("parameter: " + param)
+            print("values: " + str(value))
+
+    def precmd(self, line):
+        ''' Overwrite precmd command to load saved parameters and history
+        :param line: command run in shell
+        :return: command run in shell
+        '''
+
+        # log the commands information
+        self.log_shell_history(line)
+
+        # each time load saved parameters in case value changes
+        self.load_parameters_file()
+
+        return line
 
     def default(self, line):
         """
