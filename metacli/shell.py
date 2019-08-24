@@ -21,6 +21,7 @@ class Shell(MainShell):
         MainShell.__init__(self, ctx)
         self.intro = ":q to quit; --help to list all commands "
         self.get_available_commands()
+        self.set_context_obj(ctx)
 
     def load_parameters_file(self):
         ''' load dictionary of saved parameters from file '''
@@ -154,10 +155,14 @@ class Shell(MainShell):
     def set_context_obj(self, context):
         ''' Set context object to save parameter value'''
 
-        context.obj = {}
+        if context.obj is None:
+            context.obj = {}
         context_parameters = context.__dict__["params"]
         for param, value in context_parameters.items():
             context.obj[param] = value
+
+        if "logger" in context.__dict__["command"].__dict__:
+            context.obj["logger"] = context.__dict__["command"].__dict__["logger"]
 
     def update_parameter_dict(self, command, context):
         ''' Update the parameter dictionary object with new values '''
@@ -182,6 +187,18 @@ class Shell(MainShell):
 
         # Reset the parameters in context for each loop to avoid unexpected key error
         context.__dict__["params"] = {}
+
+    def pass_context(self, parent_shell_ctx, child_shell):
+        """
+        Pass context obj information from parent to child
+        :param parent_shell_ctx: parent shell is current shell
+        :param child_shell: child shell is nested shell for click group found
+        :return:
+        """
+
+        # transfer param and value in parent ctx obj to child ctx obj
+        for param, value in parent_shell_ctx.obj.items():
+            child_shell.ctx.obj[param] = value
 
     def parse_parameters_and_update_dictionary(self, ctx, args, command):
         """
@@ -282,9 +299,12 @@ class Shell(MainShell):
                         self.parse_parameters_and_update_dictionary(new_ctx, saved_args, subcommand)
 
                 new_repl = Shell(new_ctx)
+
+                self.pass_context(self.ctx, new_repl)
                 new_repl.cmdloop()
 
             else:
+
                 if args:
                     # parse the parameters in context of command, invoke the command, and update saved values
                     self.parse_parameters_and_update_dictionary(self.ctx, args, subcommand)

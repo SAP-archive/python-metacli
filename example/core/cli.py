@@ -17,15 +17,15 @@ def core(ctx):
     if ctx.obj:
         return
 
-
     logger = get_logger("demotest2")
 
-    logger.info("hello")
 
-    # ctx.obj = {
-    #     "logger": logger,
-    #     "test" : "test"
-    # }
+    ctx.obj = {
+         "logger": logger,
+    }
+
+    ctx.obj["logger"].info("core entry root")
+    ctx.obj['logger'].info(click.get_os_args())
 
 if __name__ == '__main__':
     core()

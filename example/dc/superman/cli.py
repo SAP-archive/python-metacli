@@ -8,17 +8,10 @@ from metacli.util import get_logger
 @click.pass_context
 def superman(ctx):
     """Test with superman"""
-    logger = get_logger("demotest")
 
-    # ctx.obj = {
-    #     "logger": logger
-    # }
-    #
-    #ctx.obj['logger'].info("superman entry root")
-    #ctx.obj['logger'].info(click.get_os_args())
+    ctx.obj['logger'].info("superman entry root")
+    ctx.obj['logger'].info(click.get_os_args())
 
-    logger.info("superman entry root")
-    logger.info(click.get_os_args())
 
 
 @click.option("--name",
@@ -30,9 +23,9 @@ def superman(ctx):
 def welcome(ctx, name):
     """show superman welcome"""
     click.echo("Hello " + name +  " superman ")
-    # ctx.obj['logger'].info("superman welcome")
-    # ctx.obj['logger'].info(click.get_os_args())
-    # ctx.obj['logger'].info("Hello " + name + " superman")
+    ctx.obj['logger'].info("superman welcome")
+    ctx.obj['logger'].info(click.get_os_args())
+    ctx.obj['logger'].info("Hello " + name + " superman")
 
 
 
@@ -44,6 +37,6 @@ def welcome(ctx, name):
 def greeting(ctx, name):
     """show superman welcome"""
     click.echo("Greeting " + name +  " superman ")
-    # ctx.obj['logger'].info("superman welcome")
-    # ctx.obj['logger'].info(click.get_os_args())
-    # ctx.obj['logger'].info("Hello " + name + " superman")
+    ctx.obj['logger'].info("superman welcome")
+    ctx.obj['logger'].info(click.get_os_args())
+    ctx.obj['logger'].info("Hello " + name + " superman")
