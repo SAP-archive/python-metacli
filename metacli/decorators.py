@@ -72,20 +72,11 @@ def loadLogging(func=None, *, logger_name="metacli"):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-
-        ###########
-
         logger = get_logger(logger_name)
         setattr(func, "logger", logger)
-
-        ##############
         try:
             return func.main(*args, **kwargs)
         except Exception:
-            ###############
-            #logger = get_logger(logger_name)
-            ###############
-
             logger.exception("Exception occurred in CatchAllExceptions()")
             logger.error(stackprinter.format())
             file_location = logger.handlers[0].baseFilename
