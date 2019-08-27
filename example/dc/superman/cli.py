@@ -1,6 +1,6 @@
 import click
 from metacli.decorators import loadPlugin
-from metacli.util import get_logger
+from metacli.util import get_logger, set_context_obj
 
 @loadPlugin(json_file="./plugin_commands.json",
             base_path=__file__)
@@ -8,6 +8,15 @@ from metacli.util import get_logger
 @click.pass_context
 def superman(ctx):
     """Test with superman"""
+
+    # set own logger file
+    logger = get_logger("superman")
+
+    my_ctx_obj = {
+        "logger": logger
+    }
+
+    set_context_obj(ctx, my_ctx_obj)
 
     ctx.obj['logger'].info("superman entry root")
     ctx.obj['logger'].info(click.get_os_args())
@@ -30,8 +39,8 @@ def welcome(ctx, name):
 
 
 @click.option("--name",
-              help="input your name")
-
+              help="input your name",
+              default="")
 @superman.command("greeting")
 @click.pass_context
 def greeting(ctx, name):

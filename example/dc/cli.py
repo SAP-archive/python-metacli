@@ -1,6 +1,6 @@
 import click
 from metacli.decorators import loadPlugin, permission, addBuiltin
-from metacli.util import get_logger
+from metacli.util import get_logger, set_context_obj
 
 
 @loadPlugin(json_file="./plugin_commands.json",
@@ -10,6 +10,10 @@ from metacli.util import get_logger
 @click.pass_context
 def dc(ctx):
     """Test with DC superherors"""
+
+    # use the parent logger demotest
+    set_context_obj(ctx)
+
     ctx.obj['logger'].info("dc entry root")
     ctx.obj['logger'].info(click.get_os_args())
 

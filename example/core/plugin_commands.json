@@ -17,6 +17,12 @@
       "click_root" : "test",
       "package_path" : "../",
       "package_name" : "testing_shell.testsh"
+    },
+    {
+      "name": "origin",
+      "click_root" : "main",
+      "package_path" : "../sap-ariba-apictl/",
+      "package_name" : "apictl.cli"
     }
   ]
 }

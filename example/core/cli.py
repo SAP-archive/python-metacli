@@ -1,9 +1,9 @@
 import click
 from metacli.decorators import loadPlugin, addBuiltin, permission, loadLogging
-from metacli.util import get_logger
+from metacli.util import get_logger, set_context_obj
 
 
-@loadLogging(logger_name="demotest2")
+@loadLogging(logger_name="demotest")
 @permission(root_permission=True)
 @addBuiltin(name="shell")
 @addBuiltin(name="schema")
@@ -17,15 +17,19 @@ def core(ctx):
     if ctx.obj:
         return
 
-    logger = get_logger("demotest2")
+    # set logger file
+    logger = get_logger("demotest")
 
-
-    ctx.obj = {
-         "logger": logger,
+    my_ctx_obj = {
+        "logger": logger
     }
+
+    set_context_obj(ctx, my_ctx_obj)
 
     ctx.obj["logger"].info("core entry root")
     ctx.obj['logger'].info(click.get_os_args())
+
+
 
 if __name__ == '__main__':
     core()
