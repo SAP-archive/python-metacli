@@ -41,7 +41,7 @@ As a valid plugin, you need to include these three files:
 + cli.py : file that define your commands using Click library
 + setup.py
 
-To make the plugin as your base plugin, you need to include two more files:
+To make the plugin as your base plugin, you need to include one more file:
 
 + plugin_commands.json
 
@@ -195,11 +195,13 @@ def base_plugin():
     + Checks for package version conflicts
 
 + **Logging**
+    + Catch all exceptions into user specified log file in base plugin using decorator *loadLogging*
     + Summarize all logs into user specified log file in base plugin
-    + Catch all exceptions into user specified log file in base plugin
+        + Use *get_logger* to specify log file and get the logger
+        + Save logger as part of context for base plugin using *set_context_obj* 
         ```
         from metacli.decorators import loadLogging
-        from metacli.util import get_logger
+        from metacli.util import get_logger, set_context_obj
         
         @loadLogging(logger_name=<specified_log_file>)
         @click.group()
@@ -207,13 +209,34 @@ def base_plugin():
             if ctx.obj:
                 return
 
-            logger = get_logger("demotest")
+            logger = get_logger(<specified_log_file>)
 
-            ctx.obj = {
+            my_ctx_obj = {
                 "logger": logger
             }
+            
+            set_context_obj(ctx, my_ctx_obj)
         ```
-     + Can specify different log files for different plugins. However, we recommend using the same log file for all the plugins
+     + *set_context_obj* sets the context object that allows user to add atributes to context
+        + Parameters: 
+             + ctx : context for the plugin 
+             + my_ctx_obj : *optional* user defined dictionary of attributes for context
+        + Allow logging with different contexts for plugins at different levels
+             + Child plugins can add attributes to the context of parent plugin
+                + Create *my_ctx_obj* to specify new attributes for context
+                + Call *set_context_obj* with both parameters *ctx* and *my_ctx_obj*
+        + Can specify different log files for plugins at different levels or use same logger
+             + To use different log file for a plugin:
+                + Call *get_logger* to get different log file and logger
+                + Create *my_ctx_obj* with new logger 
+                + Call 
+                    ```
+                        set_context_obj(ctx, my_ctx_obj)
+                    ```
+             + To use the same log file, then directly call 
+                ```
+                    set_context_obj(ctx)
+                ```
 + **Permission Control**
     + Add permissions of *admin* and *developer* to Click groups and commands in the cli.py. Default is *developer*.
     ```
