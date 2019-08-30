@@ -1,19 +1,17 @@
 import click
 from metacli.decorators import addBuiltin
+from metacli.util import set_context_obj
 
 
 @addBuiltin(name="shell")
-@click.group(invoke_without_command=True)
+@click.group()
 @click.pass_context
 def test(ctx):
     ''' Test '''
 
-    if ctx.obj:
-        return
+    click.echo("in test")
 
-    ctx.obj = {}
-
-
+    set_context_obj(ctx)
 
 @test.command(hidden=False)
 @click.option('--foo', required=True)
@@ -122,7 +120,6 @@ def counting(ctx, version):
 @counting.command()
 @click.pass_context
 def print(ctx):
-    click.echo(ctx.obj)
     click.echo("version: %s" % ctx.obj["version"])
 
 

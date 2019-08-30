@@ -1,6 +1,6 @@
 import click
 
-@click.group(invoke_without_command=True)
+@click.group()
 @click.pass_context
 def marvel(ctx):
     """Test with marvel superherors"""

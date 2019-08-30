@@ -4,7 +4,7 @@ from metacli.util import get_logger, set_context_obj
 
 @loadPlugin(json_file="./plugin_commands.json",
             base_path=__file__)
-@click.group(invoke_without_command=True)
+@click.group()
 @click.pass_context
 def superman(ctx):
     """Test with superman"""
