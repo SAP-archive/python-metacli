@@ -2,6 +2,59 @@ import click
 from metacli.decorators import addBuiltin
 from metacli.util import set_context_obj
 
+# @click.group()
+# @click.option('--cp', default = "")
+# @click.pass_context
+# def test(ctx, cp):
+#     ''' Test '''
+#
+#     set_context_obj(ctx)
+#
+#     ctx.obj['cp'] = cp
+#     click.echo("in test")
+#     click.echo("cp: %s" % cp)
+#
+# @test.command()
+# @click.pass_context
+# def print(ctx):
+#     click.echo("in print")
+#     click.echo("cp: %s" % ctx.obj["cp"])
+#
+# @test.group("apictl")
+# @click.option('--verbose', default = "")
+# @click.pass_context
+# def apictl(ctx, verbose):
+#
+#     ctx.obj['verbose'] = verbose
+#     click.echo("in apictl")
+#     click.echo("cp: %s" % ctx.obj["cp"])
+#     click.echo("verbose: %s" % verbose)
+#
+# @apictl.command()
+# @click.pass_context
+# def print(ctx):
+#     click.echo("in print")
+#     click.echo("cp: %s" % ctx.obj["cp"])
+#     click.echo("verbose: %s" % ctx.obj["verbose"])
+#
+# @apictl.group("datacenter")
+# @click.option('--dc', default = "")
+# @click.pass_context
+# def datacenter(ctx, dc):
+#     ctx.obj['dc'] = dc
+#     click.echo("in datacenter")
+#     click.echo("cp: %s" % ctx.obj["cp"])
+#     click.echo("verbose: %s" % ctx.obj["verbose"])
+#     click.echo("dc: %s" % dc)
+#
+#
+# @datacenter.command()
+# @click.pass_context
+# def print(ctx):
+#     click.echo("in print")
+#     click.echo("cp: %s" % ctx.obj["cp"])
+#     click.echo("verbose: %s" % ctx.obj["verbose"])
+#     click.echo("dc: %s" % ctx.obj["dc"])
 
 @addBuiltin(name="shell")
 @click.group()

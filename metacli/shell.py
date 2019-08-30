@@ -3,6 +3,7 @@ import cmd
 import json
 import pickle
 import sys
+import os
 
 
 class MainShell(cmd.Cmd):
@@ -14,6 +15,12 @@ class MainShell(cmd.Cmd):
         self.debug_parameters_history = {}
         self.shell_available_commands = []
         self.shell_parameters_options = {}
+
+        ##########
+        self.shell_parameters_level = {}
+        self.shell_parameters_history = {}
+        self.permission = "developer"
+        self.time = ""
 
 
 class Shell(MainShell):
@@ -78,14 +85,27 @@ class Shell(MainShell):
     def get_available_commands(self):
         ''' Get the commands user able to access based on permission'''
 
+        print("get available commands")
+        print("permsision, ", self.permission)
+
         # clear the list of available commands each time shell called
         if self.shell_available_commands:
             self.shell_available_commands = []
 
         for key in self.ctx.command.commands:
             command = self.ctx.command.commands.get(key)
-            level = command.__dict__['hidden']
-            if not level:
+            print("command, ", command.__dict__)
+            func_level = "developer"
+
+            if command.__dict__["permission"]:
+                func_level = command.__dict__["permission"]
+
+            print("func level, ", func_level)
+
+            if func_level == "admin" and self.permission == "developer":
+                command.__dict__["hidden"] = True
+            else:
+                command.__dict__["hidden"] = False
                 self.shell_available_commands.append(key)
 
     def get_saved_parameters(self, command):
@@ -288,20 +308,43 @@ class Shell(MainShell):
         if len(arg_list) < 2:
             print("cannot set the parameter")
         elif len(arg_list) > 2:
-            print("can only set parameter at a time ???")
+            print("can only set parameter at a time")
         else:
             parameter = arg_list[0]
             value = arg_list[1]
             print("set parameter " + parameter + " = " + value)
 
+            print("ctx obj, ", self.ctx.obj)
+            print("shell param level, ", self.shell_parameters_level)
+
             self.ctx.obj[parameter] = value
             self.update_parameter_options_dict(self.ctx)
+
+            # if parameter in self.shell_parameters_level:
+            #     self.shell_parameters_level[parameter].append(value)
 
             self.debug_parameters_history[parameter].append(value)
 
             # Save the parameters to file to always get the latest value
             self.save_parameters_file()
 
+    def do_mylogin(self, command):
+        print("login")
+        self.ctx.invoke(command)
+
+        if os.path.exists(".temp.txt"):
+            with open(".temp.txt", "r") as f:
+                userlevel, timestamp = f.readline().rstrip().split("$")
+                self.permission = userlevel
+                self.time = timestamp
+
+        self.get_available_commands()
+
+    def do_mylogout(self, command):
+        print("logout")
+        self.ctx.invoke(command)
+        self.permission = "developer"
+        self.get_available_commands()
 
     def precmd(self, line):
         ''' Overwrite precmd command to load saved parameters and history
@@ -315,6 +358,9 @@ class Shell(MainShell):
         # each time load saved parameters in case value changes
         self.load_parameters_file()
 
+        self.get_available_commands()
+
+        #self.update_parm()
 
         return line
 
@@ -324,6 +370,8 @@ class Shell(MainShell):
         :param line: command passed in
         """
 
+        print("default")
+        print("time, ", self.time)
         # get the command and its parameters
         subcommand = line.split()[0]
         args = line.split()[1:]
@@ -342,7 +390,14 @@ class Shell(MainShell):
         if subcommand == "--history":
             return self.do_history()
 
+
         subcommand = self.ctx.command.commands.get(subcommand)
+
+        if subcommand.__dict__["name"] == "login":
+            return self.do_mylogin(subcommand)
+
+        if subcommand.__dict__["name"] == "logout":
+            return self.do_mylogout(subcommand)
 
         if subcommand:
 
@@ -357,6 +412,7 @@ class Shell(MainShell):
                 self.pass_context_obj(self.ctx, new_ctx)
 
                 if args:
+                    print("Subcommand Group args")
                     try:
                         # parse the parameters in context of command, invoke the command, and update saved values
                         self.parse_parameters_and_update_dictionary(new_ctx, args, subcommand)
@@ -376,6 +432,7 @@ class Shell(MainShell):
                         print(arg_type + ": required parameter " + arg_values + " need to be set")
                         create_shell = False
                     elif arg_values:
+                        print("Subcommand Group saved / default args")
                         try:
                             saved_args_stmt = ", ".join(arg_values)
                             print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
@@ -392,12 +449,24 @@ class Shell(MainShell):
 
                 # check if can create nested shell
                 if create_shell:
+                    # new_repl = Shell(new_ctx)
+                    # new_repl.cmdloop()
+
+                    ##################################
+                    print("creat shell")
                     new_repl = Shell(new_ctx)
+                    new_repl.permission = self.permission
+                    #self.pass_parameter_values(self.shell_parameters_options, new_repl.shell_parameters_options)
+                    print("param hist, ", self.shell_parameters_history)
+                    print("param level, ", self.shell_parameters_level)
+                    #self.pass_parameter_values(self.shell_parameters_level, new_repl.shell_parameters_level)
+                    #self.pass_parameter_values(self.shell_parameters_level, new_repl.shell_parameters_history)
                     new_repl.cmdloop()
 
             else:
 
                 if args:
+                    print("Subcommand args")
                     try:
                         # parse the parameters in context of command, invoke the command, and update saved values
                         self.parse_parameters_and_update_dictionary(self.ctx, args, subcommand)
@@ -412,6 +481,7 @@ class Shell(MainShell):
                     if arg_type is "Error":
                         print(arg_type + ": required parameters " + arg_values + " need to be set")
                     elif arg_values:
+                        print("Subcommand saved / default args")
                         try:
                             saved_args_stmt = ", ".join(arg_values)
                             print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
@@ -423,6 +493,7 @@ class Shell(MainShell):
                             print("Error. Could not use " + arg_type + " parameters : " + str(e))
 
                     else:
+                        print("Subcommand no args")
                         # invoke the command directly if no args
                         self.ctx.invoke(subcommand)
 
