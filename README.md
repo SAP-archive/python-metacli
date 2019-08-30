@@ -185,6 +185,10 @@ def base_plugin():
             <plugin_name> > --history
             ```
             + Use *--history* to show all saved parameter values
+            ```
+            <plugin_name> > --set <parameter_name_without_dashes>=<parameter_value>
+            ```
+            + Use *--set* to set a value for a specify parameter
 + **Dynamic Loading**
     + Absolute path import between different plugins based on json file
     + Relative path import in one plugin project based on cli file
