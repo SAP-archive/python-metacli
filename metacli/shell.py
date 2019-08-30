@@ -273,7 +273,6 @@ class Shell(MainShell):
                 print("parameter: " + param)
                 print("value: " + str(value[-1]))
 
-        return False
 
     def do_history(self):
         print("History of parameters")
@@ -281,7 +280,7 @@ class Shell(MainShell):
             print("parameter: " + param)
             print("values: " + str(value))
 
-        return False
+
 
     def do_set(self, args):
         ''' set the parameter to have value '''
@@ -293,6 +292,7 @@ class Shell(MainShell):
         else:
             parameter = arg_list[0]
             value = arg_list[1]
+            print("set parameter " + parameter + " = " + value)
 
             self.ctx.obj[parameter] = value
             self.update_parameter_options_dict(self.ctx)
@@ -301,9 +301,6 @@ class Shell(MainShell):
 
             # Save the parameters to file to always get the latest value
             self.save_parameters_file()
-
-        return False
-
 
 
     def precmd(self, line):
