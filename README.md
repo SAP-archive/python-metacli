@@ -23,7 +23,7 @@ git clone https://github.wdf.sap.corp/Matrix/metacli.git
 
 cd metacli
 
-pip install .
+pip3.7 install .
 
 ```
 
@@ -41,7 +41,7 @@ As a valid plugin, you need to include these three files:
 + cli.py : file that define your commands using Click library
 + setup.py
 
-To make the plugin as your base plugin, you need to include two more files:
+To make the plugin as your base plugin, you need to include one more file:
 
 + plugin_commands.json
 
@@ -93,7 +93,7 @@ Support third-party plugins that are based on click. Add them in same way add pl
 #### Builtin Plugin
 Support two builtin plugins shell and help:
 
-+ help: generate entire cmd structure json for all plugins and get help info
++ schema: generate entire cmd structure json for all plugins and get help info
 + shell: generate a prompt (just like shell )
 
 
@@ -103,7 +103,7 @@ To add builtin plugins to base plugin cli.py:
 ```
 from metacli.decorators import addBuiltin
 
-@addBuiltin(name="help")
+@addBuiltin(name="schema")
 @addBuiltin(name="shell")
 @click.group()
 def base_plugin():
@@ -126,7 +126,7 @@ def base_plugin():
     ```
  + If you choose to not resolve the package conflicts and want to install the first appeared version of the conflict packages, try: 
     ``` 
-    cat dependencies.txt | xargs -n 1 pip install
+    cat requirements.txt | xargs -n 1 pip install
     ```
 
 
