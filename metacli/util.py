@@ -4,6 +4,7 @@ import click
 import os
 import logging
 
+
 def check_valid_json(json_path):
     # the kind of json we expect in plugins_commands.json
     schema = {
