@@ -106,7 +106,6 @@ def permission(func = None, *, level = "developer", root_permission = False):
             for name in ['login', 'logout']:
                 root = globals()[name]
                 func.add_command(root)
-
         userlevel = "developer"
         if os.path.exists(".temp.txt"):
             with open(".temp.txt", "r") as f:

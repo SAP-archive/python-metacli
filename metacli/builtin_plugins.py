@@ -11,8 +11,11 @@ import time
 def shell():
     """ Shell """
     root_command = click.get_current_context().__dict__['parent'].__dict__['command']
+    initialize_root_param = False
+    if root_command.params:
+        initialize_root_param = True
     root_ctx = click.Context(root_command)
-    repl = Shell(root_ctx)
+    repl = Shell(root_ctx, initialize_root_param)
     repl.cmdloop()
 
 
