@@ -170,25 +170,24 @@ def base_plugin():
          <plugin_name> shell
          ```
         + Logs all the commands run in the shell in generated file shell_history
-        + Saves all parameter values in hidden file parameters_history
-        + Loads the latest saved parameter for use in the shell
+        + Saves all parameter values in hidden file and allow other commands to read the latest saved parameters in shell
         + Built in Commands:
             ```
              <plugin_name> > :q
             ```
-            + Use *:q* to quit the shell
+            + Use *:q* or *:quit* to quit the shell
             ```
-            <plugin_name> > --help
+            <plugin_name> > :help
             ```
-            + Use *--help* to show all the available commmands that can be used
+            + Use *:help* or *:h* to show all the available commmands and saved options for a group
             ```
-            <plugin_name> > --history
+            <plugin_name> > :shell_history
             ```
-            + Use *--history* to show all saved parameter values
+            + Use *:shell_history* or *:sh* to show all saved parameter values
             ```
-            <plugin_name> > --set <parameter_name_without_dashes>=<parameter_value>
+            <plugin_name> > :set <parameter_name_without_dashes>=<parameter_value>
             ```
-            + Use *--set* to set a value for a specify parameter
+            + Use *:set* or *:s* to set a value for a specify parameter
 + **Dynamic Loading**
     + Absolute path import between different plugins based on json file
     + Relative path import in one plugin project based on cli file
