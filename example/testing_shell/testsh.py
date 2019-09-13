@@ -4,22 +4,22 @@ from metacli.util import set_context_obj
 
 @addBuiltin(name="shell")
 @click.group()
-@click.option('--cp', default = "")
+@click.option('--version', default = "")
 @click.pass_context
-def test(ctx, cp):
+def test(ctx, version):
     ''' Test '''
 
     set_context_obj(ctx)
 
-    ctx.obj['cp'] = cp
+    ctx.obj['version'] = version
     click.echo("in test")
-    click.echo("cp: %s" % cp)
+    click.echo("version: %s" % version)
 
 @test.command()
 @click.pass_context
 def print(ctx):
     click.echo("in print")
-    click.echo("cp: %s" % ctx.obj["cp"])
+    click.echo("version: %s" % ctx.obj["version"])
 
 
 @test.command(hidden=False)
@@ -79,13 +79,17 @@ def info2(ctx, shout):
     rv = "test"
     if shout:
         rv = rv.upper() + '!!!!111'
+    else:
+        print("nope")
     click.echo(rv)
 
 @test.command()
 @click.option('--n', default=1)
+@click.option('--m', default="")
 @click.pass_context
-def dots(ctx, n):
+def dots(ctx, n, m):
     click.echo('.' * n)
+    click.echo(m)
 
 @test.command()
 @click.option('--pos', nargs=2, type=float)
@@ -154,14 +158,14 @@ def apictl(ctx, verbose):
 
     ctx.obj['verbose'] = verbose
     click.echo("in apictl")
-    click.echo("cp: %s" % ctx.obj["cp"])
+    click.echo("version: %s" % ctx.obj["version"])
     click.echo("verbose: %s" % verbose)
 
 @apictl.command()
 @click.pass_context
 def print(ctx):
     click.echo("in print")
-    click.echo("cp: %s" % ctx.obj["cp"])
+    click.echo("version: %s" % ctx.obj["version"])
     click.echo("verbose: %s" % ctx.obj["verbose"])
 
 @apictl.group("datacenter")
@@ -170,7 +174,7 @@ def print(ctx):
 def datacenter(ctx, dc):
     ctx.obj['dc'] = dc
     click.echo("in datacenter")
-    click.echo("cp: %s" % ctx.obj["cp"])
+    click.echo("version: %s" % ctx.obj["version"])
     click.echo("verbose: %s" % ctx.obj["verbose"])
     click.echo("dc: %s" % dc)
 
@@ -179,7 +183,7 @@ def datacenter(ctx, dc):
 @click.pass_context
 def print(ctx):
     click.echo("in print")
-    click.echo("cp: %s" % ctx.obj["cp"])
+    click.echo("version: %s" % ctx.obj["version"])
     click.echo("verbose: %s" % ctx.obj["verbose"])
     click.echo("dc: %s" % ctx.obj["dc"])
 

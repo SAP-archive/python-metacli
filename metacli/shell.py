@@ -7,7 +7,6 @@ import time
 import warnings
 import sys
 
-
 class MainShell(cmd.Cmd):
 
     def __init__(self, ctx):
@@ -17,61 +16,60 @@ class MainShell(cmd.Cmd):
         self.permission = "developer"
         self.debug_parameters_history = {}
         self.shell_available_commands = []
-        self.shell_parameters_options = {}
 
-        self.shell_parameters_level = {}
-        self.shell_parameters_history = {}
-        self.transfer_parameters = {}
+        self.shell_parameters_current_session = {}
+        self.shell_parameters_previous_session= {}
+        self.transfer_parameters_shells = {}
+        self.shell_group_saved_parameters = {}
 
 
 class Shell(MainShell):
 
-    def __init__(self, ctx, initialize_param):
+    def __init__(self, ctx, root_shell = False):
         MainShell.__init__(self, ctx)
         self.intro = ":q to quit; --help to list all commands "
-        self.call_initialize_ctx_sys_argv = initialize_param
+        self.root_shell = root_shell
+        if root_shell:
+            self.set_root_context_obj_and_param_dict_sys_argv(ctx)
+        else:
+            self.set_context_obj(ctx)
         self.get_available_commands()
-        # self.initialize_ctx_sys_argv(ctx)
+
+    def set_root_context_obj_and_param_dict_sys_argv(self, ctx):
+        ''' To gather parameters for root plugin group from system args '''
+        command = ctx.__dict__["command"]
+        param_values = sys.argv[1:len(sys.argv) - 1]
+
+        ctx_param_dict = {}
+
+        if command.params:
+            for param in command.params:
+                param_name = param.__dict__["name"]
+                param_opts = param.__dict__["opts"]
+                param_count = param.__dict__["count"]
+                param_default = param.__dict__["default"]
+
+                p = str(param_opts[0])
+                if param_count:
+                    value_list = self.gather_param_for_base(param_values, p, count=True)
+                    ctx_param_dict[param_name] = len(value_list[0])
+                elif p not in param_values:
+                    ctx_param_dict[param_name] = param_default
+                else:
+                    value_list = self.gather_param_for_base(param_values, p)
+                    if len(value_list) < 2:
+                        ctx_param_dict[param_name] = value_list[0]
+                    else:
+                        ctx_param_dict[param_name] = tuple(value_list)
+
+        ctx.__dict__["params"] = ctx_param_dict
+
         self.set_context_obj(ctx)
 
-    # TODO: Saving parameters of different levels
-    def initialize_ctx_sys_argv(self, ctx):
-        command = ctx.__dict__["command"]
+        self.update_parameter_values_dict(command, ctx)
 
-        if self.call_initialize_ctx_sys_argv:
-
-            param_values = sys.argv[1:len(sys.argv) - 1]
-
-            ctx_param_dict = {}
-
-            if command.params:
-                for param in command.params:
-                    param_name = param.__dict__["name"]
-                    param_opts = param.__dict__["opts"]
-                    param_count = param.__dict__["count"]
-                    param_default = param.__dict__["default"]
-
-                    p = str(param_opts[0])
-                    if param_count:
-                        value_list = self.gather_param_for_base(param_values, p, count=True)
-                        ctx_param_dict[param_name] = len(value_list[0])
-                    elif p not in param_values:
-                        ctx_param_dict[param_name] = param_default
-                    else:
-                       value_list = self.gather_param_for_base(param_values, p)
-                       if len(value_list) < 2:
-                           ctx_param_dict[param_name] = value_list[0]
-                       else:
-                           ctx_param_dict[param_name] = tuple(value_list)
-
-            ctx.__dict__["params"] = ctx_param_dict
-
-            self.set_context_obj(ctx)
-
-            self.update_parameter_values_dict(command, ctx) # use this?
-
-    # TODO: Saving parameters of different levels
     def gather_param_for_base(self, list, param, count=False):
+        ''' Helper function to get values for specific parameter '''
         gather = False
 
         param_values = []
@@ -95,12 +93,8 @@ class Shell(MainShell):
 
         try:
             with open(file, "rb") as f:
-                length = pickle.load(f)
-                if length > 1:
-                    my_dicts = pickle.load(f)
-                    self.debug_parameters_history, self.transfer_parameters = my_dicts
-                else:
-                    self.debug_parameters_history = pickle.load(f)
+                my_dicts = pickle.load(f)
+                self.debug_parameters_history, self.transfer_parameters_shells = my_dicts
 
         except Exception as e:
             self.debug_parameters_history = {}
@@ -111,14 +105,8 @@ class Shell(MainShell):
         file = ".parameters_history"
 
         with open(file, "wb") as f:
-            #pickle.dump(self.debug_parameters_history, f)
-            if "Entering" in self.transfer_parameters or "Exiting" in self.transfer_parameters:
-                my_dicts = [self.debug_parameters_history, self.transfer_parameters]
-                pickle.dump(len(my_dicts), f)
-                pickle.dump(my_dicts, f)
-            else:
-                pickle.dump(1, f)
-                pickle.dump(self.debug_parameters_history, f)
+            my_dicts = [self.debug_parameters_history, self.transfer_parameters_shells]
+            pickle.dump(my_dicts, f)
 
     def log_shell_history(self, line):
         ''' log commands run in shell to file '''
@@ -159,35 +147,38 @@ class Shell(MainShell):
         if self.shell_available_commands:
             self.shell_available_commands = []
 
-        for key in self.ctx.command.commands:
-            command = self.ctx.command.commands.get(key)
+        for cmd in self.ctx.command.commands:
+            command = self.ctx.command.commands.get(cmd)
+
+            # permission control
             func_level = "developer"
 
             if "permission" in command.__dict__:
                 func_level = command.__dict__["permission"]
-            else:
-                func_level = "developer"
 
             if func_level == "admin" and self.permission == "developer":
                 pass
             else:
-                self.shell_available_commands.append(key)
+                self.shell_available_commands.append(cmd)
 
-    def get_saved_parameters(self, command):
+    def get_saved_parameters(self, group_name, is_group, command):
         '''
         Get saved parameters from dictionary and decide whether to use those values
         :param command: command just run in shell
         :return: list of parameters
         '''
-
         # saved_args_list hold the list of parameters return and used when run command
         saved_args_list = []
 
-        # values used to indicate the type of param (saved, default) and its value
+        # values used to indicate the type of param (saved, default), its value, value_type
         param_type = ""
         param_value = []
+        value_bool = False
 
-        # Get the saved parameters from dictionary
+        group_param_level_dict = {}
+        if group_name in self.shell_parameters_current_session:
+            group_param_level_dict = self.shell_parameters_current_session[group_name]
+
         if command.params:
             for param in command.params:
                 param_name = param.__dict__["name"]
@@ -195,18 +186,25 @@ class Shell(MainShell):
                 param_count = param.__dict__["count"]
                 param_default = param.__dict__["default"]
                 param_multiple = param.__dict__["multiple"]
+                param_type = param.__dict__["type"]
                 if param_opts:
                     opt = str(param_opts[0])
-
-                    # get the type of parameter and its value
-                    if param_name in self.debug_parameters_history:
-                        value = self.debug_parameters_history[param_name][-1]
+                    # get the type of parameter and its value)
+                    if group_param_level_dict and param_name in group_param_level_dict:
+                        value = group_param_level_dict[param_name][-1]
                         param_type = "saved"
-                    elif param_default is not None or param_default is None:
-                        value = param_default
-                        param_type = "default"
                     else:
-                        return "Error", opt, None
+                        found_saved_param, saved_value = self.search_value_in_history(param_name)
+                        if found_saved_param and not is_group:
+                            value = saved_value
+                            param_type = "saved"
+                        elif param_default is not None or param_default is None:
+                            if isinstance(param_type, click.types.BoolParamType):
+                                value_bool = True
+                            value = param_default
+                            param_type = "default"
+                        else:
+                            return "Error", opt, None, None
 
                     # format parameters for hint message
                     if isinstance(value, str) and not value:
@@ -230,16 +228,29 @@ class Shell(MainShell):
                         saved_args_list.append(opt)
                         saved_args_list.append(value)
 
-        return param_type, param_value, saved_args_list
+        return param_type, param_value, saved_args_list, value_bool
+
+    def search_value_in_history(self, param_name):
+        ''' Helper function to search for param values '''
+        found_param = False
+        value = ""
+        for group, param_list in self.shell_parameters_previous_session.items():
+            if param_name in param_list :
+                print("found param")
+                found_param = True
+                value = param_list[param_name][-1]
+
+        return found_param, value
 
     def set_context_obj(self, context):
+
         ''' Set context object to save parameter value'''
 
         if context.obj is None:
             context.obj = {}
 
-        if self.shell_parameters_options is None:
-            self.shell_parameters_options = {}
+        if self.shell_group_saved_parameters is None:
+            self.shell_group_saved_parameters = {}
 
         context_parameters = context.__dict__["params"]
 
@@ -261,19 +272,21 @@ class Shell(MainShell):
                     os.remove(".temp.txt")
                     self.permission = "developer"
 
-    # TODO: Saving parameters of different levels
-    def update_transfer_parameters(self, enter_value = False, exit_value=False, new_prompt="", new_context=None):
-
-        self.transfer_parameters["Entering"] = enter_value
-        self.transfer_parameters["Exited"] = exit_value
-        self.transfer_parameters["permission"] = self.permission
-
+    def update_transfer_parameters_shells(self, enter_value = False, exit_value=False, new_prompt="", new_context=None):
+        ''' Save parameters values for group (based on prompt ) for nested levels'''
+        self.transfer_parameters_shells["Entering"] = enter_value
+        self.transfer_parameters_shells["Exited"] = exit_value
+        self.transfer_parameters_shells["permission"] = self.permission
         pass_parameter_dict = {}
 
-        if "parameters" in self.transfer_parameters:
-            for param, value in self.transfer_parameters["parameters"].items():
+        if "parameters" in self.transfer_parameters_shells:
+            for param, value in self.transfer_parameters_shells["parameters"].items():
                 if param != self.prompt and param != new_prompt:
                     pass_parameter_dict[param] = value
+
+        cur_group_level_param_dict = {}
+        if self.prompt in self.shell_parameters_current_session:
+            cur_group_level_param_dict = self.shell_parameters_current_session[self.prompt]
 
         if enter_value:
                 new_prompt_param_dict = {}
@@ -281,26 +294,38 @@ class Shell(MainShell):
                     param_new_command = new_context.__dict__["command"].params
                     for param in param_new_command:
                         param_name = param.__dict__["name"]
-                        if param_name in self.shell_parameters_level:
-
-                            new_prompt_param_dict[param_name] = self.shell_parameters_level[param_name]
-                            del self.shell_parameters_level[param_name]
-
+                        if cur_group_level_param_dict and param_name in cur_group_level_param_dict:
+                            param_val = cur_group_level_param_dict[param_name]
+                            if len(param_val) > 1:
+                                cur_group_level_param_dict[param_name] = param_val[:-1]
+                                new_prompt_param_dict[param_name] = [param_val[-1], ]
+                            else:
+                                new_prompt_param_dict[param_name] = cur_group_level_param_dict[param_name]
+                                del cur_group_level_param_dict[param_name]
+                        if self.shell_group_saved_parameters and param_name in self.shell_group_saved_parameters:
+                            param_val = self.shell_group_saved_parameters[param_name]
+                            if len(param_val) > 1:
+                                self.shell_group_saved_parameters[param_name] = param_val[:-1]
+                            else:
+                                del self.shell_group_saved_parameters[param_name]
+                            print(self.shell_group_saved_parameters)
 
                 pass_parameter_dict[new_prompt + " > "] = new_prompt_param_dict
-                pass_parameter_dict[self.prompt] = self.shell_parameters_level
+                pass_parameter_dict[self.prompt] = cur_group_level_param_dict
 
-
-
-        self.transfer_parameters["parameters"] = pass_parameter_dict
+        self.transfer_parameters_shells["parameters"] = pass_parameter_dict
 
         self.save_parameters_file()
 
-    def update_parameter_values_dict(self, command, context):
+    def update_parameter_values_dict(self,command, context):
         ''' Update the parameter dictionary object with new values '''
 
         context_parameters = context.__dict__["params"]
-        #print("context param, ", context_parameters)
+
+        group_param_dict = {}
+
+        if self.prompt in self.shell_parameters_current_session:
+            group_param_dict = self.shell_parameters_current_session[self.prompt]
 
         # Get the latest param values from context and update dictionary
         if command.params:
@@ -308,12 +333,12 @@ class Shell(MainShell):
                 param_name = param.__dict__["name"]
                 param_type = param.__dict__["type"]
                 if param_name in context_parameters and not isinstance(param_type, click.types.BoolParamType):
-                    if param_name not in self.debug_parameters_history: #self.shell_parameters_level :
-                        self.debug_parameters_history[param_name] = [context_parameters[param_name], ]
-                        #self.shell_parameters_level[param_name] = [context_parameters[param_name], ]
+                    if param_name not in group_param_dict:
+                        group_param_dict[param_name] = [context_parameters[param_name],]
                     else:
-                        self.debug_parameters_history[param_name].append(context_parameters[param_name])
-                        #self.shell_parameters_level[param_name].append(context_parameters[param_name])
+                        group_param_dict[param_name].append(context_parameters[param_name])
+                self.shell_parameters_current_session[self.prompt] = group_param_dict
+                self.debug_parameters_history[self.prompt] = group_param_dict
 
         # Save the parameters to file to always get the latest value
         self.save_parameters_file()
@@ -321,38 +346,36 @@ class Shell(MainShell):
         # Reset the parameters in context for each loop to avoid unexpected key error
         context.__dict__["params"] = {}
 
-    def update_parameter_options_dict(self, context):
+    def update_parameter_options_dict(self, context, param=""):
         """
-        Display saved parameters of the group
+        Update saved parameters of the group
         :param context:
         :return:
         """
-        ctx_obj = context.obj
 
+        ctx_obj = context.obj
         ctx_param = context.__dict__["command"].params
 
-        for param in ctx_param:
-            param_name = param.__dict__["name"]
-            if param_name in ctx_obj:
-                if param_name not in self.shell_parameters_options:
-                    self.shell_parameters_options[param_name] = [ctx_obj[param_name], ]
-                else:
-                    self.shell_parameters_options[param_name].append(ctx_obj[param_name])
+        if param and param in self.shell_group_saved_parameters:
+            self.shell_group_saved_parameters[param].append(ctx_obj[param])
+        else:
+            for param in ctx_param:
+                param_name = param.__dict__["name"]
+                if param_name in ctx_obj:
+                    if param_name not in self.shell_group_saved_parameters:
+                        self.shell_group_saved_parameters[param_name] = [ctx_obj[param_name], ]
+                    else:
+                        self.shell_group_saved_parameters[param_name].append(ctx_obj[param_name])
 
-    def pass_context_obj(self, parent_shell_ctx, child_shell_ctx):
-        """
-        Pass context obj information from parent to child
-        :param parent_shell_ctx: parent shell is current shell
-        :param child_shell_ctx: child shell is nested shell for click group found
-        :return:
-        """
+    def set_and_pass_context_obj(self, nested_shell_context):
+        # set the context of nested shell for click group found
+        self.set_context_obj(nested_shell_context)
 
-        # transfer param and value in parent ctx obj to child ctx obj
-        for param, value in parent_shell_ctx.obj.items():
-            child_shell_ctx.obj[param] = value
+        # transfer the param and value in context obj of current shell to the nested shell
+        for param, value in self.ctx.obj.items():
+            nested_shell_context.obj[param] = value
 
-
-    def parse_parameters_and_update_dictionary(self, ctx, args, command):
+    def parse_parameters_and_update_dictionary(self, ctx, args, command, bool_type):
         """
         Parse parameters of command in context and update param dictionary with new param values
         :param ctx: context of the command
@@ -360,8 +383,9 @@ class Shell(MainShell):
         :param command: command run in the shell
         """
 
-        # parse the parameters passed in context
-        command.parse_args(ctx, args)
+        if not bool_type:
+            # parse the parameters passed in context
+            command.parse_args(ctx, args)
 
         # For commands that are Groups, before invoking those commands, need to save the parameters
         # to the context object to allow commands under that Group to use those parameters
@@ -377,7 +401,10 @@ class Shell(MainShell):
     def do_exit(self):
         ''' Exit the shell '''
         print("Exiting")
-        self.update_transfer_parameters(enter_value= False, exit_value=True)
+        self.update_transfer_parameters_shells(enter_value= False, exit_value=True)
+        if self.root_shell:
+            if os.path.exists(".parameters_history"):
+                os.remove(".parameters_history")
         return True
 
     def do_show(self):
@@ -390,19 +417,40 @@ class Shell(MainShell):
                 print(command)
 
         print("\nSaved Parameters: ")
-        if not self.shell_parameters_options:
+        if not self.shell_group_saved_parameters:
             print("None")
         else:
-            for param, value in self.shell_parameters_options.items():
+            for param, value in self.shell_group_saved_parameters.items():
                 print("parameter: " + param)
-                print("value: " + str(value[-1]))
+                val = value[-1]
+                if isinstance(val, str) and not val:
+                    print("''")
+                else:
+                    print(str(val))
 
-    def do_history(self):
-        print("History of parameters")
-        for param, value in self.debug_parameters_history.items():
-            print("parameter: " + param)
-            print("values: " + str(value))
+    def do_history(self, arg):
+        ''' Print parameter history'''
+        if arg and arg[0] == "--debug":
+            print("History of parameters of all sessions")
+            self.print_dictionaries(self.debug_parameters_history)
+        else:
+            print("History of parameters in previous shell session")
+            self.print_dictionaries(self.shell_parameters_previous_session)
 
+            print("History of parameters in current shell session")
+            self.print_dictionaries(self.shell_parameters_current_session)
+
+    def print_dictionaries(self, shell_attribute_dictionary):
+        ''' Helper function to print parameter dictionaries '''
+        for group, param_list in shell_attribute_dictionary.items():
+            if param_list:
+                print("group: " + group)
+                for param, param_values in param_list.items():
+                    print("parameter: " + param)
+                    print("values: " + str(param_values))
+                    print()
+            else:
+                print("None")
 
     def do_set(self, args):
         ''' set the parameter to have value '''
@@ -414,13 +462,21 @@ class Shell(MainShell):
         else:
             parameter = arg_list[0]
             value = arg_list[1]
-            print("Set parameter " + parameter + " = " + value)
 
-            self.ctx.obj[parameter] = value
-            self.update_parameter_options_dict(self.ctx)
+            group_param_level_dict = self.shell_parameters_current_session[self.prompt]
+            if parameter not in self.shell_group_saved_parameters and parameter not in group_param_level_dict:
+                print("Cannot set the nonexistent parameter")
+            else:
+                print("Set parameter " + parameter + " = " + value)
+                if parameter in self.ctx.obj:
+                    self.ctx.obj[parameter] = value
+                    self.update_parameter_options_dict(self.ctx, param=parameter)
 
-            self.debug_parameters_history[parameter].append(value)
-            self.shell_parameters_level[parameter].append(value)
+
+                if parameter in group_param_level_dict:
+                    group_param_level_dict[parameter].append(value)
+                    self.shell_parameters_current_session[self.prompt] = group_param_level_dict
+                    self.debug_parameters_history[self.prompt] = group_param_level_dict
 
             # Save the parameters to file to always get the latest value
             self.save_parameters_file()
@@ -434,12 +490,12 @@ class Shell(MainShell):
                 self.permission = userlevel
 
         self.get_available_commands()
-        self.update_transfer_parameters(enter_value=True, exit_value=False)
+        self.update_transfer_parameters_shells(enter_value=True, exit_value=False)
 
     def do_mylogout(self, command):
         self.ctx.invoke(command)
         self.permission = "developer"
-        self.update_transfer_parameters(enter_value=True, exit_value=False)
+        self.update_transfer_parameters_shells(enter_value=True, exit_value=False)
         self.get_available_commands()
 
     def precmd(self, line):
@@ -447,7 +503,6 @@ class Shell(MainShell):
         :param line: command run in shell
         :return: command run in shell
         '''
-
         # log the commands information
         self.log_shell_history(line)
 
@@ -458,33 +513,20 @@ class Shell(MainShell):
 
         self.get_available_commands()
 
-
         return line
 
-    # TODO: Saving parameters of different levels
     def setup_parameters(self):
-
-        if "Entering" in self.transfer_parameters and self.transfer_parameters["Entering"]:
-            if "parameters" in self.transfer_parameters:
-                for param, param_list in self.transfer_parameters["parameters"].items():
-                    if param == self.prompt:
-                        for opts, opt_val in param_list.items():
-                            for val in opt_val:
-                                if opts not in self.shell_parameters_level:
-                                    self.shell_parameters_level[opts] = [val, ]
-                                else:
-                                    self.shell_parameters_level[opts].append(val)
+        ''' Set up parameter dictionaries for shell session'''
+        if "Entering" in self.transfer_parameters_shells and self.transfer_parameters_shells["Entering"]:
+            if "parameters" in self.transfer_parameters_shells:
+                for group, param_list in self.transfer_parameters_shells["parameters"].items():
+                    if group == self.prompt:
+                        self.shell_parameters_current_session[group] = param_list
                     else:
-                        for opts, opt_val in param_list.items():
-                            for val in opt_val:
-                                if opts not in self.shell_parameters_history:
-                                    self.shell_parameters_history[opts] = [val, ]
-                                else:
-                                    self.shell_parameters_history[opts].append(val)
+                        self.shell_parameters_previous_session[group] = param_list
 
-
-        if "Exited" in self.transfer_parameters and self.transfer_parameters["Exited"]:
-            self.permission = self.transfer_parameters["permission"]
+        if "Exited" in self.transfer_parameters_shells and self.transfer_parameters_shells["Exited"]:
+            self.permission = self.transfer_parameters_shells["permission"]
 
     def default(self, line):
         """
@@ -512,11 +554,36 @@ class Shell(MainShell):
 
         # check user enter history command
         if command_input == "--history":
-            return self.do_history()
+            return self.do_history(args)
 
         command = self.ctx.command.commands.get(command_input)
 
         if command:
+
+            create_shell = False
+            arg_type = ""
+            args_stmt = ""
+            com_args = []
+            ctx_used = None
+            is_group = False
+            group = ""
+            bool_type = False
+
+            if isinstance(command, click.Group):
+                create_shell = True
+                is_group = True
+                group = command_input
+                ctx_used = click.Context(command)
+                self.set_and_pass_context_obj(ctx_used)
+
+                # check if plugin developed based on click has shell support
+                if command.__dict__["invoke_without_command"] and ctx_used.__dict__["invoked_subcommand"] is None:
+                    create_shell = False
+            else:
+                ctx_used = self.ctx
+                is_group = False
+                group = self.prompt
+                create_shell = False
 
             if command.__dict__["name"] == "login":
                 return self.do_mylogin(command)
@@ -528,94 +595,40 @@ class Shell(MainShell):
                 print("Error: No such command \"" + command.name + "\"")
                 return
 
-            # Check if command is a click.Group create a nested shell with cmd to run
-            if isinstance(command, click.Group):
-                # boolean determine can run nested shell
-                create_shell = True
-                initialize_args = True
-
-                new_ctx = click.Context(command)
-                self.set_context_obj(new_ctx)
-                self.pass_context_obj(self.ctx, new_ctx)
-
-                if args:
-
-                    try:
-                        # parse the parameters in context of command, invoke the command, and update saved values
-                        self.parse_parameters_and_update_dictionary(new_ctx, args, command)
-
-
-                        # check if plugin developed based on click has shell support
-                        if command.__dict__["invoke_without_command"] and self.ctx.__dict__["invoked_subcommand"] is None:
-                            create_shell = False
-
-                        initialize_args = False
-
-                    except Exception as e:
-                        print("Error. Could not use passed parameters: " + str(e))
-
-                else:
-
-                    # get saved or default parameters if user has not passed any args and provide as hint
-                    arg_type, arg_values, saved_args = self.get_saved_parameters(command)
-                    if arg_type is "Error":
-                        print(arg_type + ": required parameter " + arg_values + " need to be set")
-                        create_shell = False
-
-                    elif arg_values:
-                        try:
-                            saved_args_stmt = ", ".join(arg_values)
-                            print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
-
-                            # parse the parameters in context of command, invoke the command, and update saved values
-                            self.parse_parameters_and_update_dictionary(new_ctx, saved_args, command)
-
-                            # check if plugin developed based on click has shell support
-                            if command.__dict__["invoke_without_command"] and self.ctx.__dict__["invoked_subcommand"] is None:
-                                create_shell = False
-
-                            initialize_args = False
-
-                        except Exception as e:
-                            print("Error. Could not use " + arg_type + " parameters : " + str(e))
-
-                # check if can create nested shell
-                if create_shell:
-                    new_repl = Shell(new_ctx, initialize_args)
-                    new_repl.permission = self.permission
-                    self.update_transfer_parameters(enter_value = True, exit_value=False, new_prompt=command_input, new_context=new_ctx)
-                    new_repl.cmdloop()
-
+            if args:
+                arg_type = "passed"
+                com_args = args
+                args_stmt = " = ".join(args)
             else:
+                # get saved or default parameters if user has not passed any args and provide as hint
+                #arg_type, arg_values, saved_args = self.get_saved_parameters(group_name=command_input, is_group=True, command=command)
+                arg_type, arg_values, com_args, bool_type = self.get_saved_parameters(group_name=group,
+                                                                             is_group=is_group, command=command)
+                args_stmt = ", ".join(arg_values)
 
-                if args:
-                    try:
-                        # parse the parameters in context of command, invoke the command, and update saved values
-                        self.parse_parameters_and_update_dictionary(self.ctx, args, command)
+            if arg_type is "Error":
+                print(arg_type + ": required parameters " + args_stmt + " need to be set")
+            elif com_args:
+                try:
+                    print("used " + arg_type + " parameters { " + args_stmt + " }")
 
-                    except Exception as e:
-                        print("Error. Could not use passed parameters: " + str(e))
+                    # parse the parameters in context of command, invoke the command, and update saved values
+                    self.parse_parameters_and_update_dictionary(ctx_used, com_args, command, bool_type)
 
-                else:
-                    # get saved or default parameters if user has not passed any args and provide as hint
-                    arg_type, arg_values, saved_args = self.get_saved_parameters(command)
+                except Exception as e:
+                    print("Error. Could not use " + arg_type + " parameters.")
+                    create_shell = False
+            else :
+                print("invoke directly")
+                # invoke the command directly if no args
+                ctx_used.invoke(command)
 
-                    if arg_type is "Error":
-                        print(arg_type + ": required parameters " + arg_values + " need to be set")
-                    elif arg_values:
-                        try:
-                            saved_args_stmt = ", ".join(arg_values)
-                            print("used " + arg_type + " parameters { " + saved_args_stmt + " }")
-
-                            # parse the parameters in context of command, invoke the command, and update saved values
-                            self.parse_parameters_and_update_dictionary(self.ctx, saved_args, command)
-
-                        except Exception as e:
-                            print("Error. Could not use " + arg_type + " parameters : " + str(e))
-
-                    else:
-                        # invoke the command directly if no args
-                        self.ctx.invoke(command)
+            # check if can create nested shell
+            if create_shell:
+                self.update_transfer_parameters_shells(enter_value=True, exit_value=False, new_prompt=group, new_context=ctx_used)
+                new_repl = Shell(ctx_used, root_shell = False)
+                new_repl.permission = self.permission
+                new_repl.cmdloop()
 
         else:
             return cmd.Cmd.default(self, line)
