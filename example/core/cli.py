@@ -37,8 +37,6 @@ def core(ctx, version, verbose) :
 
     ctx.obj["version"] = version
     ctx.obj["verbose"] = verbose
-    click.echo("version: %s" % version)
-    click.echo("verbose: %s" % verbose)
 
 
 if __name__ == '__main__':
