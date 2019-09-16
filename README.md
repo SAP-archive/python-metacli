@@ -183,6 +183,7 @@ def base_plugin():
             ```
             <plugin_name> > :shell_history
             ```
+            + Option “—debug”: to show all saved parentheses.            
             + Use *:shell_history* or *:sh* to show all saved parameter values
             ```
             <plugin_name> > :set <parameter_name_without_dashes>=<parameter_value>
