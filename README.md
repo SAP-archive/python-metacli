@@ -183,8 +183,8 @@ def base_plugin():
             ```
             <plugin_name> > :shell_history
             ```
-            + Option “—debug”: to show all saved parentheses.            
-            + Use *:shell_history* or *:sh* to show all saved parameter values
+            + Option “—debug”: to show all saved parentheses for all group level sessions.            
+            + Use *:shell_history* or *:sh* to show all saved parameter values for current group level session and previous group level sessions
             ```
             <plugin_name> > :set <parameter_name_without_dashes>=<parameter_value>
             ```
