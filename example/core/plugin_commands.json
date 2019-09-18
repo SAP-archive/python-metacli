@@ -13,22 +13,16 @@
       "package_name" : "marvel.cli"
     },
     {
+      "name": "testshell",
+      "click_root" : "test",
+      "package_path" : "../",
+      "package_name" : "testing_shell.testsh"
+    },
+    {
       "name": "origin",
-      "click_root": "main",
-      "package_path": "../sap-ariba-apictl/",
+      "click_root" : "main",
+      "package_path" : "../sap-ariba-apictl/",
       "package_name" : "apictl.cli"
-    },
-    {
-      "name": "mycli",
-      "click_root": "cli",
-      "package_path": "../third-party-CLI/mycli/",
-      "package_name" : "mycli.main"
-    },
-    {
-      "name": "litecli",
-      "click_root": "cli",
-      "package_path": "../third-party-CLI/litecli/",
-      "package_name" : "litecli.main"
     }
   ]
 }

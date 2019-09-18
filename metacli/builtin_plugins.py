@@ -1,14 +1,19 @@
-from click_repl import repl
+#from click_repl import repl
+
 import click
 from .util import get_help_info
+from .shell import Shell
 import os
 import time
 
 
 @click.command("shell")
 def shell():
-    click.echo(":q to quit; :h to get help; --help to get commands")
-    repl(click.get_current_context())
+    """ Shell """
+    root_command = click.get_current_context().__dict__['parent'].__dict__['command']
+    root_ctx = click.Context(root_command)
+    repl = Shell(root_ctx, root_shell=True)
+    repl.cmdloop()
 
 
 @click.command('schema')
