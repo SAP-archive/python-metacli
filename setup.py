@@ -53,4 +53,8 @@ setup(
     url='https://github.com/tw4dl/metacli',
     version='0.0.0',
     zip_safe=False,
+    data_files=[('templates',['metacli/templates/__init__.txt',
+                              'metacli/templates/cli.txt',
+                              'metacli/templates/plugin_commands.txt',
+                              'metacli/templates/setup.txt'])]
 )

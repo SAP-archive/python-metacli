@@ -44,7 +44,8 @@ def initial(ctx):
     os.mkdir(project_path)
 
     # load template
-    loader = jinja2.FileSystemLoader(searchpath= './metacli/templates')
+    parent_path = str(pathlib.Path(__file__).parent)
+    loader = jinja2.FileSystemLoader(searchpath= parent_path + '/templates')
     env = jinja2.Environment(loader=loader)
 
     # initial cli.py, setup.py, init.py, plugin_commands.json
