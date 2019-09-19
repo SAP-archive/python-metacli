@@ -39,10 +39,10 @@ def get_help_info(info, filename="schema.json", display=False):
     help_info = get_help_info_dfs(info)
 
     with open(filename, 'w') as fp:
-        json.dump(help_info, fp, indent=2)
+        json.dump([help_info], fp, indent=2)
 
     if display:
-        print(json.dumps(help_info, indent=2))
+        print(json.dumps([help_info], indent=2))
 
     if os.path.exists(filename):
         print("Generate help info in schema.json")
@@ -58,8 +58,7 @@ def get_help_info_dfs(info):
 
     group_info = {"name": group['name'],
                   "help": group["help"],
-                  "permission": get_permission_level(info),
-                  "hidden": group['hidden'],
+                  "hidden": str(group['hidden']),
                   "groups": [],
                   "commands": [],
                   "params": get_param_info(info)}
@@ -72,8 +71,7 @@ def get_help_info_dfs(info):
             command_info = obj.__dict__
             cmd = {"name" : command_info['name'],
                    "help" : command_info['help'],
-                   "permission": get_permission_level(obj),
-                   "hidden": command_info['hidden'],
+                   "hidden": str(command_info['hidden']),
                    "params": get_param_info(obj)}
             group_info["commands"].append(cmd)
 
@@ -101,13 +99,6 @@ def get_param_info(info):
         params_info.append(param_info)
 
     return params_info
-
-
-def get_permission_level(info):
-    if "permission" in info.__dict__:
-        return info.__dict__["permission"]
-    else:
-        return "developer"
 
 
 # Get logger to write to log file.

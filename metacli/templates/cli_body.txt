@@ -1,0 +1,17 @@
+
+
+@{{parent_name}}.{{click_type}}({% for obj in group_param %}{{obj.name}}={{obj.val}}, {% endfor%})
+{% for opt in options_param -%}
+@click.option({% for obj in opt -%}
+{% if obj.name == "name"%}
+{{obj.val}},
+{%- elif obj.name != "argument" -%}
+{{obj.name}}={{obj.val}},
+{%- endif -%}
+{% endfor %})
+{% endfor -%}
+@click.pass_context
+def {{group_name}}(ctx{% if options_param|length > 0 %},{%endif%}{% for opt in options_param %}{% for obj in opt %}{%if obj.name == "argument" %}{{obj.val}}{% endif %}{% endfor %}{% if not loop.last %},{%endif%}{% endfor %}):
+    print("this is {{click_type}}", "{{group_name}}")
+
+

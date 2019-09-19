@@ -2,6 +2,7 @@ import click
 import jinja2
 import os
 import pathlib
+import json
 from .schema import *
 from .dependency_management import DependencyManagement
 
@@ -23,8 +24,10 @@ def dependency_management(ctx):
 
 
 @metacli.command("initial")
+@click.option("--fromjson", help = "input your schema json file", default="")
 @click.pass_context
-def initial(ctx):
+def initial(ctx, fromjson):
+
     project_path = input("input project path: ")
     project_name = input("project name: ")
 
@@ -35,8 +38,8 @@ def initial(ctx):
     project_path = project_path + '/' + project_name
 
     if os.path.exists(project_path):
-        delete = input("Already Existed, would you want to replace?")
-        if delete == 'y':
+        delete = input("Already Existed, would you want to replace? y/n \n")
+        if delete == 'y' or delete == 'Y':
             clean_project(project_path)
         else:
             raise FileExistsError
@@ -48,30 +51,42 @@ def initial(ctx):
     loader = jinja2.FileSystemLoader(searchpath= parent_path + '/templates')
     env = jinja2.Environment(loader=loader)
 
-    # initial cli.py, setup.py, init.py, plugin_commands.json
-    cli_output, cli_path = initial_file(template = env.get_template('cli.txt'),
-                                        name = project_name + 'cli.py',
-                                        project_name = project_name,
-                                        project_path = project_path)
+    if fromjson == "":
+        # initial empty project with cli.py, setup.py, init.py, plugin_commands.json
+        templates_name = ['__init__.txt', 'setup.txt', 'cli.txt', 'plugin_commands.txt']
+        templates = [env.get_template(name) for name in templates_name]
 
-    setup_output, setup_path = initial_file(template = env.get_template('setup.txt'),
-                                            name = 'setup.py',
-                                            project_name = project_name,
-                                            project_path = project_path)
+        names = ['__init__.py', 'setup.py', 'cli.py', 'plugin_commands.json']
+        output, path = create_empty_files(templates, names, project_name, project_path, project_name)
 
-    init_output, init_path = initial_file(env.get_template('__init__.txt'),
-                                          name = '__init__.py',
-                                          project_name=project_name,
-                                          project_path=project_path)
+    else:
+        with open(fromjson) as json_file:
+            schema = json.load(json_file)
 
-    plugin_json_output, plugin_json_path = initial_file(template = env.get_template('plugin_commands.txt'),
-                                                        name = 'plugin_commands.json',
-                                                        project_path = project_path,
-                                                        project_name = project_name)
+        # generate cli file
+        # generate cli body
+        cli_template = env.get_template('cli_body.txt')
 
-    # write all templates into files
-    output = [cli_output, setup_output, init_output, plugin_json_output]
-    path = [cli_path, setup_path, init_path, plugin_json_path]
+        cli_body_output = ""
+        cli_body_output += parse_cli(None, schema, cli_template)
+
+        # add header and end to cli
+        root_name = schema[0]['name']
+        cli_start_template = env.get_template("cli_start.txt")
+        cli_end_template = env.get_template("cli_end.txt")
+        cli_output = cli_start_template.render() + cli_body_output + cli_end_template.render(root=root_name)
+        cli_path = project_path + '/' + project_name +'cli.py'
+
+        # add setup.py, plugin_commands.json, __init__.py
+        templates_name = ['__init__.txt', 'setup.txt', 'plugin_commands.txt']
+        templates = [env.get_template(name) for name in templates_name]
+        names = ['__init__.py', 'setup.py', 'plugin_commands.json']
+        output, path = create_empty_files(templates, names, project_name, project_path, root_name)
+
+        # add cli.py
+        output.append(cli_output)
+        path.append(cli_path)
+
 
     try:
         for output, file in zip(output, path):
@@ -82,6 +97,7 @@ def initial(ctx):
         if os.path.exists(project_path):
             clean_project(project_path)
             print("cleaned project")
+
 
     # display structure
     list_files(project_path)

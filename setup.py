@@ -56,5 +56,8 @@ setup(
     data_files=[('templates',['metacli/templates/__init__.txt',
                               'metacli/templates/cli.txt',
                               'metacli/templates/plugin_commands.txt',
-                              'metacli/templates/setup.txt'])]
+                              'metacli/templates/setup.txt',
+                              'metacli/templates/cli_body.txt',
+                              'metacli/templates/cli_end.txt',
+                              'metacli/templates/cli_start.txt'])]
 )
