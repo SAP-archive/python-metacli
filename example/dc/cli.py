@@ -1,5 +1,5 @@
 import click
-from metacli.decorators import loadPlugin, permission, addBuiltin
+from metacli.decorators import loadPlugin, addBuiltin
 from metacli.util import get_logger, set_context_obj
 
 
@@ -18,7 +18,6 @@ def dc(ctx):
     ctx.obj['logger'].info(click.get_os_args())
 
 
-@permission(level = "developer")
 @click.option("--name",
               help="input your name",
               default="")
@@ -33,9 +32,6 @@ def welcome(ctx, name):
     ctx.obj['logger'].info("Hello " + name + " DC World")
 
 
-
-
-@permission(level = "admin")
 @click.option("--name",
               help="input your name",
               default="")

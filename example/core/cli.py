@@ -1,5 +1,5 @@
 import click
-from metacli.decorators import loadPlugin, addBuiltin, permission, loadLogging
+from metacli.decorators import loadPlugin, addBuiltin, loadLogging
 from metacli.util import get_logger, set_context_obj
 
 
@@ -7,7 +7,6 @@ from metacli.util import get_logger, set_context_obj
 # core --version 1 --verbose hi --pos 1.0 2.0 --message bye --message test --n 3 --item yi 2 -ttttt shell
 
 @loadLogging(logger_name="demotest")
-#@permission(root_permission=True)
 @addBuiltin(name="shell")
 @addBuiltin(name="schema")
 @loadPlugin(json_file="./plugin_commands.json",
