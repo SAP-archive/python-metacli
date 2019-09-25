@@ -14,7 +14,8 @@ requirements = ['Click>=6.0',
                 'pathlib',
                 'jsonschema',
                 'stackprinter',
-                'jinja2'
+                'jinja2',
+                'pyyaml'
                 ]
 
 setup_requirements = ['pytest-runner', ]

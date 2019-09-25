@@ -1,4 +1,5 @@
 import click
+import yaml
 import jinja2
 import os
 import pathlib
@@ -23,10 +24,32 @@ def dependency_management(ctx):
     dm.gather_packages_for_plugins_and_check_conflicts()
 
 
-@metacli.command("initial")
+@metacli.command("convert")
 @click.option("--fromjson", help = "input your schema json file", default="")
+@click.option("--fromyaml", help = "input your schema yaml file", default="")
 @click.pass_context
-def initial(ctx, fromjson):
+def converter(ctx, fromjson, fromyaml):
+    """convert from json to yaml or yaml to json"""
+    if fromjson != "":
+        with open(fromjson, 'r') as f:
+            data = json.load(f)
+
+        with open('test.yaml', 'w') as f:
+            yaml.dump(data, f)
+    if fromyaml != "":
+        with open(fromyaml, 'r') as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+
+        with open('test2.json', 'w') as f:
+            json.dump(data, f, indent=2)
+
+
+@metacli.command("create_project")
+@click.option("--fromjson", help = "input your schema json file", default="")
+@click.option("--fromyaml", help = "input your schema yaml file", default="")
+@click.pass_context
+def create_project(ctx, fromjson, fromyaml):
+    """crate new project from schema.yaml or schema.json"""
 
     project_path = input("input project path: ")
     project_name = input("project name: ")
@@ -51,17 +74,21 @@ def initial(ctx, fromjson):
     loader = jinja2.FileSystemLoader(searchpath= parent_path + '/templates')
     env = jinja2.Environment(loader=loader)
 
-    if fromjson == "":
+    if fromjson == "" and fromyaml == "":
         # initial empty project with cli.py, setup.py, init.py, plugin_commands.json
         templates_name = ['__init__.txt', 'setup.txt', 'cli.txt', 'plugin_commands.txt']
         templates = [env.get_template(name) for name in templates_name]
 
-        names = ['__init__.py', 'setup.py', 'cli.py', 'plugin_commands.json']
+        names = ['__init__.py', 'setup.py', project_name + 'cli.py', 'plugin_commands.json']
         output, path = create_empty_files(templates, names, project_name, project_path, project_name)
 
     else:
-        with open(fromjson) as json_file:
-            schema = json.load(json_file)
+        if fromjson != "":
+            with open(fromjson) as json_file:
+                schema = json.load(json_file)
+        elif fromyaml != "":
+            with open(fromyaml) as yaml_file:
+                schema = yaml.load(yaml_file)
 
         # generate cli file
         # generate cli body
