@@ -103,13 +103,6 @@ def get_param_info(info):
     return params_info
 
 
-def get_permission_level(info):
-    if "permission" in info.__dict__:
-        return info.__dict__["permission"]
-    else:
-        return "developer"
-
-
 # Get logger to write to log file.
 # It has to be initialized every-time, since in a commandline application.
 # the process is short-lived and new process is created for every invocation of a command.

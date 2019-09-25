@@ -14,7 +14,6 @@ class MainShell(cmd.Cmd):
         self.ctx = ctx
         self.prompt = ctx.command.name + " > "
         self.group = ctx.command.name + " > "
-        self.permission = "developer"
         self.debug_parameters_history = {}
         self.shell_available_commands = []
         self.shell_parameters_current_session = {}
@@ -142,25 +141,14 @@ class Shell(MainShell):
                 f.write("\n\n")
 
     def get_available_commands(self):
-        ''' Get the commands user able to access based on permission'''
+        ''' Get the commands user able to access'''
 
         # clear the list of available commands each time shell called
         if self.shell_available_commands:
             self.shell_available_commands = []
 
         for cmd in self.ctx.command.commands:
-            command = self.ctx.command.commands.get(cmd)
-
-            # permission control
-            func_level = "developer"
-
-            if "permission" in command.__dict__:
-                func_level = command.__dict__["permission"]
-
-            if func_level == "admin" and self.permission == "developer":
-                pass
-            else:
-                self.shell_available_commands.append(cmd)
+            self.shell_available_commands.append(cmd)
 
     def get_saved_parameters(self, group_name, is_group, command):
         '''
@@ -264,21 +252,12 @@ class Shell(MainShell):
 
         self.update_parameter_options_dict(context)
 
-    def check_permission_status(self):
-        if os.path.exists(".temp.txt"):
-            with open(".temp.txt", "r") as f:
-                userlevel, timestamp = f.readline().rstrip().split("$")
-                if time.time() - float(timestamp) > 60:
-                    warnings.simplefilter("always", Warning)
-                    warnings.warn("Login Timeout", Warning)
-                    os.remove(".temp.txt")
-                    self.permission = "developer"
 
     def update_transfer_parameters_shells(self, enter_value = False, exit_value=False, new_prompt="", new_context=None):
         ''' Save parameters values for group (based on prompt ) for nested levels'''
         self.transfer_parameters_shells["Entering"] = enter_value
         self.transfer_parameters_shells["Exited"] = exit_value
-        self.transfer_parameters_shells["permission"] = self.permission
+
         pass_parameter_dict = {}
         pass_group_option = {}
 
@@ -488,23 +467,6 @@ class Shell(MainShell):
             # Save the parameters to file to always get the latest value
             self.save_parameters_file()
 
-    def do_mylogin(self, command):
-        self.ctx.invoke(command)
-
-        if os.path.exists(".temp.txt"):
-            with open(".temp.txt", "r") as f:
-                userlevel, timestamp = f.readline().rstrip().split("$")
-                self.permission = userlevel
-
-        self.get_available_commands()
-        self.update_transfer_parameters_shells(enter_value=True, exit_value=False)
-
-    def do_mylogout(self, command):
-        self.ctx.invoke(command)
-        self.permission = "developer"
-        self.update_transfer_parameters_shells(enter_value=True, exit_value=False)
-        self.get_available_commands()
-
     def precmd(self, line):
         ''' Overwrite precmd command to load saved parameters and history
         :param line: command run in shell
@@ -532,8 +494,6 @@ class Shell(MainShell):
                     else:
                         self.shell_parameters_previous_session[group] = param_list
 
-        if "Exited" in self.transfer_parameters_shells and self.transfer_parameters_shells["Exited"]:
-            self.permission = self.transfer_parameters_shells["permission"]
 
     def default(self, line):
         """
@@ -545,8 +505,6 @@ class Shell(MainShell):
         command_input = line.split()[0]
         args = line.split()[1:]
 
-        # check login status
-        self.check_permission_status()
 
         # check user enter quit command
         if command_input == ":quit" or command_input == ":q":
@@ -592,11 +550,6 @@ class Shell(MainShell):
                 group = self.group #self.prompt
                 create_shell = False
 
-            if command.__dict__["name"] == "login":
-                return self.do_mylogin(command)
-
-            if command.__dict__["name"] == "logout":
-                return self.do_mylogout(command)
 
             if command.__dict__["name"] not in self.shell_available_commands:
                 print("Error: No such command \"" + command.name + "\"")
@@ -633,7 +586,6 @@ class Shell(MainShell):
             if create_shell:
                 self.update_transfer_parameters_shells(enter_value=True, exit_value=False, new_prompt=group, new_context=ctx_used)
                 new_repl = Shell(ctx_used, root_shell = False)
-                new_repl.permission = self.permission
                 new_repl.group = new_repl.prompt
                 new_repl.prompt = self.prompt + " : " + new_repl.prompt
                 new_repl.cmdloop()
