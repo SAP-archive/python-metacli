@@ -17,127 +17,182 @@ def list_files(startpath):
             print('{}{}'.format(subindent, f))
 
 
-def clean_project(path):
-    """
-    Delete entire project
-    :param path: project path
-    :return:
-    """
-    shutil.rmtree(path)
+class ProjectGenerator:
 
+    def __init__(self, project_path, project_name):
+        self.project_path = project_path
+        self.project_name = project_name
 
-def create_file(template, name, *args, **kwargs):
-    project_name = kwargs.get('project_name')
-    project_path = kwargs.get('project_path')
-    root_name = kwargs.get('root_name')
+        if os.path.exists(project_path):
+            delete = input("Already Existed, would you want to replace? y/n \n")
+            if delete == 'y' or delete == 'Y':
+                self.clean_project()
+            else:
+                raise FileExistsError
 
-    output = template.render(project_name = project_name, root_name = root_name)
-    path = project_path + '/' + name
-    return output, path
+        os.mkdir(project_path)
 
+    def create_empty_files(self, templates, names, root_name):
+        """
+        Generate an empty command line project based on templates and names
+        :param templates (list): templates to generate files
+        :param names (list): file names
+        :param root_name:
+        :return: outputs (list): generated content for files
+                 paths (list): generated files' path
+        """
+        outputs = []
+        paths = []
 
-def parse_cli(parent, data, template):
-    """
-    create the cli body content recursively
-    :param parent: parent command / group name
-    :param data: current command / group dict
-    :param template: command / group body template
-    :return: generated content for current group / command
-    """
+        assert len(templates) == len(names), "The lengths for templates and files are not equal"
 
-    output = ""
+        for (template, file_name) in zip(templates, names):
+            content, path = self.create_file(template=template,
+                                             name=file_name,
+                                             root_name=root_name)
 
-    for group in data:
+            outputs.append(content)
+            paths.append(path)
 
-        group_param_query = ['name', 'help', 'hidden']
-        parsed_group_param = {key : group[key] for key in group_param_query}
+        return outputs, paths
 
-        convertor = DataTypeConvertor()
+    def clean_project(self):
+        """
+        Delete entire project
+        :param path: project path
+        :return:
+        """
+        shutil.rmtree(self.project_path)
 
-        parsed_group_param = convertor.convert_all(parsed_group_param)
+    def create_file(self, template, name, root_name):
 
-        option_params = group['params'] if "params" in group.keys() else []
+        output = template.render(project_name=self.project_name, root_name=root_name)
+        path = self.project_path + '/' + name
+        return output, path
 
-        parsed_option_param = []
-        for option_param in option_params:
-            if option_param['param_type'] != 'option':
-                continue
-            del option_param['param_type']
+    def generate_cli_from_data(self, env, schema, root_name):
+        """
+        :param env: template engine environment
+        :param schema: schema data
+        :return: generated cli file
+        """
+        # generate cli file
+        # generate cli body
+        cli_template = env.get_template('cli_body.txt')
 
-            tmp = convertor.convert_all(option_param)
-            tmp["argument"] = tmp["name"][1:-1]
-            tmp['name'] = "\"" + "--" + tmp['name'][1:]
-            parsed_option_param.append(tmp)
+        cli_body_output = ""
+        cli_body_output += self.parse_cli(None, schema, cli_template)
 
-        group_param = [Data(k, v) for (k, v) in parsed_group_param.items()]
+        # add header and end to cli
+        cli_start_template = env.get_template("cli_start.txt")
+        cli_end_template = env.get_template("cli_end.txt")
+        cli_output = cli_start_template.render() + cli_body_output + cli_end_template.render(root=root_name)
+        cli_path = self.project_path + '/' + self.project_name + 'cli.py'
 
-        option_param = []
-        for option in parsed_option_param:
-            tmp = []
-            for key in option:
-                if key == "name":
-                    tmp.insert(0, Data(key, option[key]))
-                else:
-                    tmp.append(Data(key, option[key]))
-            option_param.append(tmp)
+        return cli_output, cli_path
 
-        click_type = "group" if "groups" in group else "command"
-        output += template.render(click_type=click_type,
-                                        parent_name=parent if parent else "click",
-                                        group_param=group_param,
-                                        group_name=group['name'],
-                                        options_param= option_param
-                                        )
-        if "commands" in group:
-            next_output = parse_cli(group['name'],
-                                          group['commands'],
-                                          template)
-            output += next_output
+    def parse_cli(self, parent, data, template):
+        """
+        create the cli body based on schema recursively
+        :param parent: parent command / group name
+        :param data: current command / group dict
+        :param template: command / group body template
+        :return: generated content for current group / command
+        """
 
-        if "groups" in group:
-            next_output = parse_cli(group['name'],
-                                          group['groups'],
-                                          template)
-            output += next_output
+        output = ""
 
-    return output
+        for group in data:
 
+            # parse parameters to template writable string
+            group_param_query = ['name', 'help', 'hidden']
+            parsed_group_param = {key: group[key] for key in group_param_query}
 
-def create_empty_files(templates, names, project_name, project_path, root_name):
-    """
-    Generate an empty command line project based on templates and names
-    :param templates (list): templates to generate files
-    :param names (list): file names
-    :param project_name (str):
-    :param prject_path (str):
-    :param root_name:
-    :return: outputs (list): generated content for files
-             paths (list): generated files' path
-    """
-    outputs = []
-    paths = []
+            convertor = DataTypeConvertor()
 
-    assert len(templates) == len(names), "The lengths for templates and files are not equal"
+            parsed_group_param = convertor.convert_all(parsed_group_param)
 
-    for (template, file_name) in zip(templates, names):
-        content, path = create_file(template=template,
-                                    name=file_name,
-                                    project_name=project_name,
-                                    project_path=project_path,
-                                    root_name = root_name)
+            option_params = group['params'] if "params" in group.keys() else []
 
-        outputs.append(content)
-        paths.append(path)
+            # make sure the parameter is option and process the name as special case
+            parsed_option_param = []
+            for option_param in option_params:
+                if option_param['param_type'] != 'option':
+                    continue
+                del option_param['param_type']
 
-    return outputs, paths
+                # process the name field since the code needs to be --<name> instead of name = <name>
+                tmp = convertor.convert_all(option_param)
+                tmp["argument"] = tmp["name"][1:-1]
+                tmp['name'] = "\"" + "--" + tmp['name'][1:]
+                parsed_option_param.append(tmp)
 
+            # construct a list for writing template
+            group_param = [Data(k, v) for (k, v) in parsed_group_param.items()]
 
+            # process name specifically since name must be at first place in code
+            option_param = []
+            for option in parsed_option_param:
+                tmp = []
+                for key in option:
+                    if key == "name":
+                        tmp.insert(0, Data(key, option[key]))
+                    else:
+                        tmp.append(Data(key, option[key]))
+                option_param.append(tmp)
 
+            # use groups to identify if this is a group or command schema
+            click_type = "group" if "groups" in group else "command"
+            output += template.render(click_type=click_type,
+                                      parent_name=parent if parent else "click",
+                                      group_param=group_param,
+                                      group_name=group['name'],
+                                      options_param=option_param
+                                      )
+            # dfs to next commands
+            if "commands" in group:
+                next_output = self.parse_cli(group['name'],
+                                             group['commands'],
+                                             template)
+                output += next_output
+
+            # dfs to next groups
+            if "groups" in group:
+                next_output = self.parse_cli(group['name'],
+                                             group['groups'],
+                                             template)
+                output += next_output
+
+        return output
+
+    def append_schema_template(self, env, output, path):
+        schema_json_output = env.get_template('schema_json.txt').render()
+        schema_yaml_output = env.get_template('schema_yaml.txt').render()
+        path.append(self.project_path + '/' + 'schema.json')
+        path.append(self.project_path + '/' + 'schema.yaml')
+        output.append(schema_json_output)
+        output.append(schema_yaml_output)
+
+        return output, path
+
+    def write_files(self, output, path):
+        try:
+            for output, file in zip(output, path):
+                with open(file, 'w') as f:
+                    f.write(output)
+        except Exception as e:
+            print(e)
+            if os.path.exists(self.project_path):
+                self.clean_project()
+                print("cleaned project")
 
 
 class Data:
 
     def __init__(self, name, val):
+        """
+        This class is used to load data when writing template
+        """
         self.name = name
         self.val = val
 
@@ -145,6 +200,10 @@ class Data:
 class DataTypeConvertor:
 
     def __init__(self):
+        """
+        This class is used to parse the data type from JSON to date type we use when writing template
+        """
+        # Define the mapping between different data type
         self.data_mapping = {
             'INT':'int',
             'STRING':'str',
@@ -159,6 +218,7 @@ class DataTypeConvertor:
             'hidden': "boolean"
         }
 
+        # Define the data type and the function which can parse data for writing template
         self.func_mapping = {
             "boolean" : self.parse_boolean,
             "str": self.parse_string,
@@ -167,16 +227,21 @@ class DataTypeConvertor:
         }
 
     def convert_all(self, data_list):
+        """
+        :param data_list: the dict as {field_name : field argument}
+        :return: the dict as {field_name: field argument which is good for writing template}
+        """
         old = data_list
         new = {}
 
+        # If the type is already defined, use the data type instead of default mapping between data type
         if 'type' in old.keys():
             if old['default'] != 'None':
                 new['default'] = self.convert(old['default'], old['type'])
                 del old['default']
             del old['type']
 
-
+        # convert all data type into writable type in template
         for key in old.keys():
             if old[key] == 'None':
                 new[key] = self.convert(old[key], 'None')
@@ -186,8 +251,14 @@ class DataTypeConvertor:
         return new
 
     def convert(self, data, data_type):
+        """
+        :param data: data which needs to be converted
+        :param data_type: data type for the data
+        :return: data which can be written to template
+        """
+
         if data_type not in self.data_mapping.keys():
-            raise KeyError("Unsopport Data Type: ", data_type)
+            raise KeyError("Unsupported data type in converted: ", data_type)
 
         return self.func_mapping[self.data_mapping[data_type]](data)
 
@@ -197,7 +268,7 @@ class DataTypeConvertor:
         elif data == "True":
             return True
         else:
-            raise ValueError("Invalid Boolean", data)
+            raise ValueError("Invalid boolean in converted", data)
 
     def parse_string(self, data):
         return "\"{}\"".format(data)

@@ -60,5 +60,7 @@ setup(
                               'metacli/templates/setup.txt',
                               'metacli/templates/cli_body.txt',
                               'metacli/templates/cli_end.txt',
-                              'metacli/templates/cli_start.txt'])]
+                              'metacli/templates/cli_start.txt',
+                              'metacli/templates/schema_json.txt',
+                              'metacli/templates/schema_yaml.txt'])]
 )
