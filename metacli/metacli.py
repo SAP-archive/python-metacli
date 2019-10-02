@@ -79,24 +79,28 @@ def create_project(ctx, fromjson, fromyaml):
 
     else:
         # generate file based on input schema
+        validator = SchemaValidator()
+
         if fromjson != "":
             with open(fromjson) as json_file:
+                validator.validate_json(json_file)
                 schema = json.load(json_file)
         elif fromyaml != "":
             with open(fromyaml) as yaml_file:
+                validator.validate_yaml(yaml_file)
                 schema = yaml.load(yaml_file, yaml.FullLoader)
 
         # generate cli file from data
         root_name = schema[0]['name']
         cli_output, cli_path = generator.generate_cli_from_data(env, schema, root_name)
 
-        # add setup.py, plugin_commands.json, __init__.py
+        # generate setup.py, plugin_commands.json, __init__.py
         templates_name = ['__init__.txt', 'setup.txt', 'plugin_commands.txt']
         templates = [env.get_template(name) for name in templates_name]
         names = ['__init__.py', 'setup.py', 'plugin_commands.json']
         output, path = generator.create_empty_files(templates, names, root_name)
 
-        # add cli.py
+        # add cli.py to output
         output.append(cli_output)
         path.append(cli_path)
 

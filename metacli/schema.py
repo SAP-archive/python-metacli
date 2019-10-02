@@ -10,7 +10,7 @@ def list_files(startpath):
     """
     for root, dirs, files in os.walk(startpath):
         level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
+        indent = ' ' * 4 * level
         print('{}{}/'.format(indent, os.path.basename(root)))
         subindent = ' ' * 4 * (level + 1)
         for f in files:
@@ -278,4 +278,14 @@ class DataTypeConvertor:
 
     def parse_int(self, data):
         return data
+
+
+class SchemaValidator:
+
+    def validate_json(self, json_file):
+        pass
+
+    def validate_yaml(self, yaml_file):
+        pass
+
 
