@@ -79,18 +79,7 @@ class PluginLoader:
             if "commands" in obj.__dict__:
                 for cmd in obj.__dict__["commands"]:
                     cmd_obj = obj.__dict__["commands"][cmd]
-
-                    # if there is permission, check if we can add the command for use
-                    if "permission" in cmd_obj.__dict__:
-                        functionlevel = cmd_obj.permission
-                        if userlevel == "developer" and functionlevel == "admin":
-                            pass
-                        else:
-                            permission_commands[cmd] = cmd_obj
-                    else:
-
-                        # if there is no permission, add command as developer, so both developers and admin can see
-                        permission_commands[cmd] = cmd_obj
+                    permission_commands[cmd] = cmd_obj
 
         return permission_commands
 
