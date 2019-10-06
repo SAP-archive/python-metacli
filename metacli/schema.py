@@ -1,6 +1,7 @@
 import shutil
 import os
 import jinja2
+from jsonschema import validate
 
 
 def list_files(startpath):
@@ -282,10 +283,73 @@ class DataTypeConvertor:
 
 class SchemaValidator:
 
-    def validate_json(self, json_file):
+    def __init__(self):
+        self.schema = {
+
+            "definitions": {
+                "group": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "help": {"type": "string"},
+                        "hidden": {"type": "string",
+                                   "enum": ["True", "False"]},
+                        "groups": {"type": "array",
+                                   "items": {"$ref": "#/definitions/group"}},
+                        "commands": {"type": "array",
+                                     "items": {"$ref": "#/definitions/command"}},
+                        "params": {"type": "array",
+                                   "items": {"$ref": "#/definitions/param"}}
+                    },
+                    "required": ["name", "help", "hidden", "groups", "commands", "params"]
+                },
+                "command": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "help": {"type": "string"},
+                        "hidden": {"type": "string",
+                                   "enum": ["True", "False"]},
+                        "params": {"type": "array",
+                                   "items": {"$ref": "#/definitions/param"}}
+                    },
+                    "required": ["name", "help", "hidden", "params"]
+                },
+                "param": {
+                    "type": "object",
+                    "properties":{
+                        "name": {"type": "string"},
+                        "help": {"type": "string"},
+                        "type": {"type": "string",
+                                 "enum": ["STRING", "BOOL"]},
+                        "default": {"type": "string"},
+                        "required": {"type": "string",
+                                     "enum": ["True", "False"]},
+                        "prompt": {"type": "string"},
+                        "param_type": {"type": "string",
+                                       "enum": ["option"]}
+                    },
+                    "required": ["name", "help", "type", "default", "required", "prompt", "param_type"]
+                }
+            },
+
+            "type": "array",
+            "items": {"$ref": "#/definitions/group"},
+
+}
+
+    def validate_json(self, data):
+        validate(instance=data, schema=self.schema)
+
+    def validate_yaml(self, data):
+        validate(instance=data, schema=self.schema)
+
+
+class SchemaInfoGenerator:
+
+    def __init__(self):
         pass
 
-    def validate_yaml(self, yaml_file):
-        pass
+
 
 

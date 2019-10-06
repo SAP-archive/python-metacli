@@ -83,12 +83,12 @@ def create_project(ctx, fromjson, fromyaml):
 
         if fromjson != "":
             with open(fromjson) as json_file:
-                validator.validate_json(json_file)
                 schema = json.load(json_file)
+                validator.validate_json(schema)
         elif fromyaml != "":
             with open(fromyaml) as yaml_file:
-                validator.validate_yaml(yaml_file)
                 schema = yaml.load(yaml_file, yaml.FullLoader)
+                validator.validate_json(schema)
 
         # generate cli file from data
         root_name = schema[0]['name']
