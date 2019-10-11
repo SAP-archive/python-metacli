@@ -27,79 +27,18 @@ def check_valid_json(json_path):
         except json.decoder.JSONDecodeError as e:
             print("text is not json", e)
 
-
-def get_help_info(info, filename="schema.json", display=False):
+def list_files(startpath):
     """
-    :param info: click.Group object where the root information from
-    :param display: boolean, true means show structure in console
-    :param filename: file name for help info
-    :return: None
+    Show files structure based on startpath in console
+    :param startpath: path
     """
-
-    help_info = get_help_info_dfs(info)
-
-    with open(filename, 'w') as fp:
-        json.dump([help_info], fp, indent=2)
-
-    if display:
-        print(json.dumps([help_info], indent=2))
-
-    if os.path.exists(filename):
-        print("Generate help info in schema.json")
-
-
-
-def get_help_info_dfs(info):
-    """
-    :param info: click.Group object
-    :return: dict of group info
-    """
-    group = info.__dict__
-
-    group_info = {"name": group['name'],
-                  "help": group["help"],
-                  "hidden": str(group['hidden']),
-                  "groups": [],
-                  "commands": [],
-                  "params": get_param_info(info)}
-
-    for obj in group['commands'].values():
-        if isinstance(obj, click.Group):
-            group_info["groups"].append(get_help_info_dfs(obj))
-
-        elif isinstance(obj, click.Command):
-            command_info = obj.__dict__
-            cmd = {"name" : command_info['name'],
-                   "help" : command_info['help'],
-                   "hidden": str(command_info['hidden']),
-                   "params": get_param_info(obj)}
-            group_info["commands"].append(cmd)
-
-    return group_info
-
-
-def get_param_info(info):
-    """
-    :param info: click.command or click.Object Object
-    :return: dict of param info
-    """
-    params = info.__dict__['params']
-
-    info_query_option = ['name', 'help', 'type', 'default', 'required', 'prompt']
-    info_query_argument = ['name', 'type', 'default', 'required']
-    params_info = []
-
-    for param in params:
-        if isinstance(param, click.Option):
-            param_info = {key: str(param.__dict__[key]) for key in info_query_option}
-            param_info['param_type'] = 'option'
-        if isinstance(param, click.Argument):
-            param_info = {key: str(param.__dict__[key]) for key in info_query_argument}
-            param_info['param_type'] = 'argument'
-        params_info.append(param_info)
-
-    return params_info
-
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * level
+        print('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print('{}{}'.format(subindent, f))
 
 # Get logger to write to log file.
 # It has to be initialized every-time, since in a commandline application.

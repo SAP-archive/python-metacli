@@ -1,8 +1,8 @@
 from click_repl import repl
 import click
-from .util import get_help_info
 import os
 import time
+from .schema import SchemaInfoGenerator
 
 
 @click.command("shell")
@@ -18,7 +18,9 @@ def schema(ctx, display):
     """Generate cmd structure json and get help info"""
     # get parent object
     root = click.get_current_context().__dict__['parent'].__dict__['command']
-    get_help_info(root, display=display)
+    schema_generator = SchemaInfoGenerator()
+    schema_generator.get_help_info(root, display=display)
+
 
 @click.command('login')
 @click.pass_context
