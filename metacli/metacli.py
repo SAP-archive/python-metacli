@@ -25,25 +25,6 @@ def dependency_management(ctx):
     dm.gather_packages_for_plugins_and_check_conflicts()
 
 
-@metacli.command("convert")
-@click.option("--fromjson", help = "input your schema json file", default="")
-@click.option("--fromyaml", help = "input your schema yaml file", default="")
-@click.pass_context
-def converter(ctx, fromjson, fromyaml):
-    """convert from json to yaml or yaml to json"""
-    if fromjson != "":
-        with open(fromjson, 'r') as f:
-            data = json.load(f)
-
-        with open('test.yaml', 'w') as f:
-            yaml.dump(data, f)
-    if fromyaml != "":
-        with open(fromyaml, 'r') as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
-
-        with open('test2.json', 'w') as f:
-            json.dump(data, f, indent=2)
-
 
 @metacli.command("create_project")
 @click.option("--fromjson", help = "input your schema json file", default="")

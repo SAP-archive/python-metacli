@@ -11,24 +11,6 @@
       "click_root": "marvel",
       "package_path": "../",
       "package_name" : "marvel.cli"
-    },
-    {
-      "name": "origin",
-      "click_root": "main",
-      "package_path": "../sap-ariba-apictl/",
-      "package_name" : "apictl.cli"
-    },
-    {
-      "name": "mycli",
-      "click_root": "cli",
-      "package_path": "../third-party-CLI/mycli/",
-      "package_name" : "mycli.main"
-    },
-    {
-      "name": "litecli",
-      "click_root": "cli",
-      "package_path": "../third-party-CLI/litecli/",
-      "package_name" : "litecli.main"
     }
   ]
 }
