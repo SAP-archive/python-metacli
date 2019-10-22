@@ -55,5 +55,23 @@ def get_logger(logger_name):
     logger.handlers.clear()
     logger.addHandler(fh)
 
-
     return logger
+
+
+# Set context object for an object
+def set_context_obj(ctx, my_ctx_obj={}):
+    """
+    Set context object for entry root of plugin. Add attributes to context.
+    :param ctx: context of plugin
+    :param my_ctx_obj: specified attributes for context
+    :return:
+    """
+    if ctx.obj is None:
+        ctx.obj = {}
+
+    # Add attributes to context
+    # Allow overwrite of saved attributes (child overwrites parent) relevant for context
+    for state, value in my_ctx_obj.items():
+        ctx.obj[state] = value
+
+

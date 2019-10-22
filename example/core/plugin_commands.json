@@ -11,6 +11,12 @@
       "click_root": "marvel",
       "package_path": "../",
       "package_name" : "marvel.cli"
+    },
+    {
+      "name": "testshell",
+      "click_root" : "test",
+      "package_path" : "../",
+      "package_name" : "testing_shell.testsh"
     }
   ]
 }

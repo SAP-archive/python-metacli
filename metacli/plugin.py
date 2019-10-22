@@ -3,6 +3,7 @@ import sys
 import inspect
 import importlib.util
 import click
+import os
 
 
 class PluginLoader:
@@ -26,7 +27,6 @@ class PluginLoader:
 
             # load next plugin as dfs
             module_loaded = self.dynamic_load_from_path(package_name, file_path)
-
             # add subgroup into current group
             parent_command_name = module["click_root"]
             for name, obj in inspect.getmembers(module_loaded):
@@ -57,8 +57,31 @@ class PluginLoader:
         :param parent_command_name:
         :return: boolean
         """
+
+        # Filter out subcommands available for use if plugin run from terminal
+        permission_commands  = self.filter_commands_by_permission_status(obj)
+        if isinstance(obj, click.Command) and permission_commands and "shell" not in sys.argv:
+            obj.commands = permission_commands
+
         return isinstance(obj, click.Command) \
                and obj.name == parent_command_name
+
+    def filter_commands_by_permission_status(self, obj):
+        permission_commands = {}
+        functionlevel = "developer"
+
+        userlevel = "developer"
+        if os.path.exists(".temp.txt"):
+            with open(".temp.txt", "r") as f:
+                userlevel, timestamp = f.readline().rstrip().split("$")
+
+        if isinstance(obj, click.Command):
+            if "commands" in obj.__dict__:
+                for cmd in obj.__dict__["commands"]:
+                    cmd_obj = obj.__dict__["commands"][cmd]
+                    permission_commands[cmd] = cmd_obj
+
+        return permission_commands
 
     def dynamic_load_from_path(self, module_name, path):
         spec = importlib.util.spec_from_file_location(module_name, path)

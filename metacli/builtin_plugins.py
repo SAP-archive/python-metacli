@@ -1,5 +1,7 @@
-from click_repl import repl
+#from click_repl import repl
+
 import click
+from .shell import Shell
 import os
 import time
 from .schema import SchemaInfoGenerator
@@ -7,8 +9,11 @@ from .schema import SchemaInfoGenerator
 
 @click.command("shell")
 def shell():
-    click.echo(":q to quit; :h to get help; --help to get commands")
-    repl(click.get_current_context())
+    """ Shell """
+    root_command = click.get_current_context().__dict__['parent'].__dict__['command']
+    root_ctx = click.Context(root_command)
+    repl = Shell(root_ctx, root_shell=True)
+    repl.cmdloop()
 
 
 @click.command('schema')
@@ -22,23 +27,3 @@ def schema(ctx, display):
     schema_generator.get_help_info(root, display=display)
 
 
-@click.command('login')
-@click.pass_context
-def login(ctx):
-    """Permission Control Login"""
-    username = input("Input username: ")
-    password = input('Input Password: ')
-
-
-    #TODO: Verification
-
-    with open(".temp.txt", "w+") as f:
-        f.write("$".join([username, str(time.time())]))
-
-@click.command('logout')
-@click.pass_context
-def logout(ctx):
-    """Permission Control Logout"""
-    if os.path.exists(".temp.txt"):
-        os.remove(".temp.txt")
-        click.echo("Logout Successful")

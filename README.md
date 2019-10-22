@@ -91,7 +91,7 @@ Parameters:
 Support third-party plugins that are based on click. Add them in same way add plugins.
 
 #### Builtin Plugin
-Support two builtin plugins shell and help:
+Support two builtin plugins shell and schema:
 
 + schema: generate entire cmd structure json for all plugins and get help info
 + shell: generate a prompt (just like shell )
@@ -163,13 +163,32 @@ def base_plugin():
 + **Builtin Plugins**
     +  Generate entire command structure and help info
         ```
-         <plugin_name> help --display # help.json will be generated and showed in console
+         <plugin_name> schema --display # help.json will be generated and showed in console
          ```
     + Support shell prompt
         ```
          <plugin_name> shell
          ```
-         
+        + Logs all the commands run in the shell in generated file shell_history
+        + Saves all parameter values in hidden file and allow other commands to read the latest saved parameters in shell
+        + Built in Commands:
+            ```
+             <plugin_name> > :q
+            ```
+            + Use *:q* or *:quit* to quit the shell
+            ```
+            <plugin_name> > :help
+            ```
+            + Use *:help* or *:h* to show all the available commmands and saved options for a group
+            ```
+            <plugin_name> > :shell_history
+            ```
+            + Option “—debug”: to show all saved parentheses for all group level sessions.            
+            + Use *:shell_history* or *:sh* to show all saved parameter values for current group level session and previous group level sessions
+            ```
+            <plugin_name> > :set <parameter_name_without_dashes>=<parameter_value>
+            ```
+            + Use *:set* or *:s* to set a value for a specify parameter
 + **Dynamic Loading**
     + Absolute path import between different plugins based on json file
     + Relative path import in one plugin project based on cli file
@@ -180,11 +199,13 @@ def base_plugin():
     + Checks for package version conflicts
 
 + **Logging**
+    + Catch all exceptions into user specified log file in base plugin using decorator *loadLogging*
     + Summarize all logs into user specified log file in base plugin
-    + Catch all exceptions into user specified log file in base plugin
+        + Use *get_logger* to specify log file and get the logger
+        + Save logger as part of context for base plugin using *set_context_obj* 
         ```
         from metacli.decorators import loadLogging
-        from metacli.util import get_logger
+        from metacli.util import get_logger, set_context_obj
         
         @loadLogging(logger_name=<specified_log_file>)
         @click.group()
@@ -192,13 +213,34 @@ def base_plugin():
             if ctx.obj:
                 return
 
-            logger = get_logger("demotest")
+            logger = get_logger(<specified_log_file>)
 
-            ctx.obj = {
+            my_ctx_obj = {
                 "logger": logger
             }
+            
+            set_context_obj(ctx, my_ctx_obj)
         ```
-     + Can specify different log files for different plugins. However, we recommend using the same log file for all the plugins
+     + *set_context_obj* sets the context object that allows user to add atributes to context
+        + Parameters: 
+             + ctx : context for the plugin 
+             + my_ctx_obj : *optional* user defined dictionary of attributes for context
+        + Allow logging with different contexts for plugins at different levels
+             + Child plugins can add attributes to the context of parent plugin
+                + Create *my_ctx_obj* to specify new attributes for context
+                + Call *set_context_obj* with both parameters *ctx* and *my_ctx_obj*
+        + Can specify different log files for plugins at different levels or use same logger
+             + To use different log file for a plugin:
+                + Call *get_logger* to get different log file and logger
+                + Create *my_ctx_obj* with new logger 
+                + Call 
+                    ```
+                        set_context_obj(ctx, my_ctx_obj)
+                    ```
+             + To use the same log file, then directly call 
+                ```
+                    set_context_obj(ctx)
+                ```
 + **Permission Control**
     + Add permissions of *admin* and *developer* to Click groups and commands in the cli.py. Default is *developer*.
     ```
@@ -266,7 +308,7 @@ Now we start to do this step by step.
 
 5. Optional: Builtin Plugins:
 
-    We have provided some built-in plugins(shell, help). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "help" or "shell" indicating help plugin or shell plugin
+    We have provided some built-in plugins(shell, help). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "schema" or "shell" indicating help plugin or shell plugin
 
 6. Optional: Permission:
     
