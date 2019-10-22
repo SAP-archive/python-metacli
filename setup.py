@@ -13,7 +13,9 @@ requirements = ['Click>=6.0',
                 'click_repl',
                 'pathlib',
                 'jsonschema',
-                'stackprinter'
+                'stackprinter',
+                'jinja2',
+                'pyyaml'
                 ]
 
 setup_requirements = ['pytest-runner', ]
@@ -52,4 +54,13 @@ setup(
     url='https://github.com/tw4dl/metacli',
     version='0.0.0',
     zip_safe=False,
+    data_files=[('templates',['metacli/templates/__init__.txt',
+                              'metacli/templates/cli.txt',
+                              'metacli/templates/plugin_commands.txt',
+                              'metacli/templates/setup.txt',
+                              'metacli/templates/cli_body.txt',
+                              'metacli/templates/cli_end.txt',
+                              'metacli/templates/cli_start.txt',
+                              'metacli/templates/schema_json.txt',
+                              'metacli/templates/schema_yaml.txt'])]
 )

@@ -1,0 +1,17 @@
+- commands:
+  - help: This is an schema example to show how to write a command schema
+    hidden: 'False'
+    name: example_command
+    params:
+    - default: 'False'
+      help: This is an schema example to show how to write an option
+      name: example_argument
+      param_type: option
+      prompt: None
+      required: 'False'
+      type: BOOL
+  groups: []
+  help: This is an schema example to show how to write a group schema
+  hidden: 'False'
+  name: example_group
+  params: []
