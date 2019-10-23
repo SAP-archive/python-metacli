@@ -1,13 +1,13 @@
 from setuptools import  setup
 
 setup(
-    name='superman',
+    name='ragdoll',
     version='0.1',
     install_requires=[
         'click',
     ],
     entry_points='''
         [console_scripts]
-        superman=cli:superman
+        ragdoll =cli:ragdoll
     ''',
 )

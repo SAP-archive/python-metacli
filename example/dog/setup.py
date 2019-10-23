@@ -1,13 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='dc',
-    version='0.1',
+    name='dog',
+    version='0.0',
+    py_modules=['cli'],
     install_requires=[
         'click',
     ],
     entry_points='''
         [console_scripts]
-        dc=cli:dc
+        dog=dogcli:dog
     ''',
 )

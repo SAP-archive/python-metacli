@@ -1,14 +1,13 @@
 from setuptools import setup
 
 setup(
-    name='core',
-    version='0.0',
-    py_modules=['cli'],
+    name='cat',
+    version='0.1',
     install_requires=[
         'click',
     ],
     entry_points='''
         [console_scripts]
-        core=cli:core
+        cat=catcli:cat
     ''',
 )

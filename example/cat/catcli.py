@@ -8,42 +8,42 @@ from metacli.util import get_logger, set_context_obj
 @addBuiltin(name="schema")
 @click.group()
 @click.pass_context
-def dc(ctx):
-    """Test with DC superherors"""
+def cat(ctx):
+    """Welcome to cat's world"""
 
     # use the parent logger demotest
-    set_context_obj(ctx)
-
-    ctx.obj['logger'].info("dc entry root")
-    ctx.obj['logger'].info(click.get_os_args())
+    # set_context_obj(ctx)
+    #
+    # ctx.obj['logger'].info("cat entry root")
+    # ctx.obj['logger'].info(click.get_os_args())
 
 
 @click.option("--name",
               help="input your name",
               default="")
-@dc.command("welcome")
+@cat.command("welcome")
 @click.pass_context
 def welcome(ctx, name):
-    """show DC welcome"""
-    click.echo("Hello " + name +  " DC World ")
+    """show cat's welcome"""
+    click.echo("Hello " + name)
 
-    ctx.obj['logger'].info("dc welcome")
+    ctx.obj['logger'].info("cat welcome")
     ctx.obj['logger'].info(click.get_os_args())
-    ctx.obj['logger'].info("Hello " + name + " DC World")
+    ctx.obj['logger'].info("Hello " + name)
 
 
 @click.option("--name",
               help="input your name",
               default="")
-@dc.command("greeting")
+@cat.command("greeting")
 @click.pass_context
 def greeting(ctx, name):
-    """Greeting DC welcome"""
-    click.echo("Greeting " + name +  " DC World ")
+    """Greeting from cat"""
+    click.echo("Greeting from " + name)
 
-    ctx.obj['logger'].info("dc greeting")
+    ctx.obj['logger'].info("cat greeting")
     ctx.obj['logger'].info(click.get_os_args())
-    ctx.obj['logger'].info("Greeting " + name + " DC World")
+    ctx.obj['logger'].info("Greeting from " + name)
 
 
 # if __name__ == '__main__':
