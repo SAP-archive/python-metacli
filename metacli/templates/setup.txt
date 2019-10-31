@@ -1,0 +1,14 @@
+from setuptools import setup
+
+setup(
+    name='{{project_name}}',
+    version='0.0',
+    py_modules=['{{project_name}}cli'],
+    install_requires=[
+        'click',
+    ],
+    entry_points='''
+        [console_scripts]
+        {{project_name}}={{project_name}}cli.{{project_name}}cli:{{root_name}}
+    ''',
+)
