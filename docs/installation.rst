@@ -4,7 +4,6 @@
 Installation
 ============
 
-
 Stable release
 --------------
 
