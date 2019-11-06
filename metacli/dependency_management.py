@@ -83,7 +83,13 @@ class DependencyManagement:
     def detect_deadloop_for_plugins(self):
         ''' Function to detect deadloops'''
         path = input("Enter path to base plugin to start detecting deadloops: ")
-        print("Path you enter,", path)
+
+        if path == "":
+            path = os.getcwd()
+            print("Using default path: " + path)
+        else:
+            print("Path you enter,", path)
+
         if not os.path.exists(path):
             sys.exit("Path does not exist. Cannot gather the required packages")
 
@@ -96,7 +102,13 @@ class DependencyManagement:
     def gather_packages_for_plugins(self):
         ''' Function to gather all the required packages for plugins'''
         path = input("Enter path to base plugin to start gathering packages: ")
-        print("Path you enter,", path)
+
+        if path == "":
+            path = os.getcwd()
+            print("Using default path: " + path)
+        else:
+            print("Path you enter,", path)
+
         if not os.path.exists(path):
             sys.exit("Path does not exist. Cannot gather the required packages")
 
@@ -196,7 +208,13 @@ class DependencyManagement:
 
         # Get path to requirements.txt
         path = input("Enter path to base plugin to check the requirements.txt: ")
-        print("Path you enter,", path)
+
+        if path == "":
+            path = os.getcwd()
+            print("Using default path: ", path)
+        else:
+            print("Path you enter,", path)
+
         if not os.path.exists(path):
             sys.exit("Path does not exist. Cannot check requirements.txt")
 
