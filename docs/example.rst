@@ -5,23 +5,21 @@ Getting Start
 ============
 We provide an example to help you getting start.
 
-In example folder, we have 5 independent projects, the file structure is:
+In example folder, we have 4 independent projects, the file structure is:
 
 | -- bird\
 | -- cat\
 |   |-- ragdoll\
 | -- dog
-| -- testing_shell
 
 All projects are the simplest command line project based on Click, which means you can run them independently.
 
 However, we want to construct the plugin tool structure as:
 
--- cog \
+-- dog \
   |-- cat \
     |--ragdoll\
   |-- bird\
-    |-- testing_shell
 
 
 Now we start to do this step by step.

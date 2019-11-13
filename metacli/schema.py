@@ -372,7 +372,7 @@ class SchemaInfoGenerator:
         group = info.__dict__
 
         group_info = {"name": group['name'],
-                      "help": group["help"],
+                      "help": str(group["help"]),
                       "hidden": str(group['hidden']),
                       "groups": [],
                       "commands": [],
@@ -385,7 +385,7 @@ class SchemaInfoGenerator:
             elif isinstance(obj, click.Command):
                 command_info = obj.__dict__
                 cmd = {"name": command_info['name'],
-                       "help": command_info['help'],
+                       "help": str(command_info['help']),
                        "hidden": str(command_info['hidden']),
                        "params": self.get_param_info(obj)}
                 group_info["commands"].append(cmd)

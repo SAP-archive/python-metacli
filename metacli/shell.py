@@ -576,7 +576,7 @@ class Shell(MainShell):
                     self.parse_parameters_and_update_dictionary(ctx_used, com_args, command, bool_type)
 
                 except Exception as e:
-                    print("Error. Could not use " + arg_type + " parameters.")
+                    #print("Error. Could not use " + arg_type + " parameters.")
                     create_shell = False
             else :
                 # invoke the command directly if no args
