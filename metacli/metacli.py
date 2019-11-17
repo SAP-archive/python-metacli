@@ -25,6 +25,13 @@ def dependency_management(ctx):
     dm.gather_packages_for_plugins_and_check_conflicts()
 
 
+def get_project_path_and_name():
+    project_path = input("input project path: ")
+    project_name = input("project name: ")
+
+    return project_path, project_name
+
+
 @metacli.command("create_project")
 @click.option("--fromjson", help = "input your schema json file", default="")
 @click.option("--fromyaml", help = "input your schema yaml file", default="")
@@ -33,8 +40,7 @@ def dependency_management(ctx):
 def create_project(ctx, fromjson, fromyaml, include_template):
     """crate new project from schema.yaml or schema.json"""
 
-    project_path = input("input project path: ")
-    project_name = input("project name: ")
+    project_path, project_name = get_project_path_and_name()
 
     if project_name == "" or project_name == "":
         raise ValueError("Empty Project Path or Project Name")
@@ -70,7 +76,7 @@ def create_project(ctx, fromjson, fromyaml, include_template):
                 schema = yaml.load(yaml_file, yaml.FullLoader)
                 validator.validate_json(schema)
 
-        # generate cli file from data
+        # generate cli file from data (only support one root now)
         root_name = schema[0]['name']
         cli_output, cli_path = generator.generate_cli_from_data(env, schema, root_name)
 

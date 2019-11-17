@@ -1,0 +1,10 @@
+{
+  "modules": [
+    {
+      "name": "yaml_project_test",
+      "click_root": "example_group",
+      "package_path": "",
+      "package_name" : "yaml_project_test.yaml_project_testcli"
+    }
+  ]
+}

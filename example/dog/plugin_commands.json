@@ -11,12 +11,6 @@
       "click_root": "bird",
       "package_path": "../",
       "package_name" : "bird.birdcli"
-    },
-    {
-      "name": "testshell",
-      "click_root" : "test",
-      "package_path" : "../",
-      "package_name" : "testing_shell.testsh"
     }
   ]
 }

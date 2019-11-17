@@ -13,6 +13,20 @@ class DependencyManagement:
         ''' Dependency Management class '''
         print("Running DependencyManagement")
 
+    def get_base_plugin_path(self):
+        path = input("Enter path to base plugin to start gathering packages: ")
+
+        if path == "":
+            path = os.getcwd()
+            print("Using default path: " + path)
+        else:
+            print("Path you enter,", path)
+
+        if not os.path.exists(path):
+            sys.exit("Path does not exist. Cannot gather the required packages")
+
+        return path
+
     def find_file(self, dir, file):
         '''
         Find the specific file in the directory
@@ -76,22 +90,15 @@ class DependencyManagement:
         Main function that gathers all the required packages for the plugins and checks for package conflicts
         '''
 
+        self.base_plugin_path = self.get_base_plugin_path()
+
         self.gather_packages_for_plugins()
 
         self.check_package_conflicts()
 
     def detect_deadloop_for_plugins(self):
         ''' Function to detect deadloops'''
-        path = input("Enter path to base plugin to start detecting deadloops: ")
-
-        if path == "":
-            path = os.getcwd()
-            print("Using default path: " + path)
-        else:
-            print("Path you enter,", path)
-
-        if not os.path.exists(path):
-            sys.exit("Path does not exist. Cannot gather the required packages")
+        path = self.base_plugin_path
 
         print("Detecting deadloops for plugins")
         packages_location = self.get_dependency_chain(path)
@@ -101,16 +108,7 @@ class DependencyManagement:
 
     def gather_packages_for_plugins(self):
         ''' Function to gather all the required packages for plugins'''
-        path = input("Enter path to base plugin to start gathering packages: ")
-
-        if path == "":
-            path = os.getcwd()
-            print("Using default path: " + path)
-        else:
-            print("Path you enter,", path)
-
-        if not os.path.exists(path):
-            sys.exit("Path does not exist. Cannot gather the required packages")
+        path = self.base_plugin_path
 
         print("Gathering all the required packages")
 
@@ -207,16 +205,7 @@ class DependencyManagement:
         foundConflict = False
 
         # Get path to requirements.txt
-        path = input("Enter path to base plugin to check the requirements.txt: ")
-
-        if path == "":
-            path = os.getcwd()
-            print("Using default path: ", path)
-        else:
-            print("Path you enter,", path)
-
-        if not os.path.exists(path):
-            sys.exit("Path does not exist. Cannot check requirements.txt")
+        path = self.base_plugin_path
 
         file_path = path + "/requirements.txt"
 
