@@ -1,4 +1,3 @@
-import pytest
 import click
 import json
 import pathlib
@@ -59,7 +58,3 @@ def test_builtin_shell():
     result = runner.invoke(root_plugin, ['dog', 'shell', '--help'])
     assert result.exit_code == 0
     assert """Shell""" in result.output
-
-
-
-

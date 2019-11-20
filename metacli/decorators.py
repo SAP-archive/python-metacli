@@ -6,12 +6,9 @@ import pathlib
 import os
 import json
 import click
-import time
-import warnings
-
-
 import sys
 import stackprinter
+
 
 def loadPlugin(func=None, *, json_file=None, base_path=None):
     """
@@ -25,6 +22,7 @@ def loadPlugin(func=None, *, json_file=None, base_path=None):
         return functools.partial(loadPlugin,
                                  json_file=json_file,
                                  base_path=base_path)
+
     @functools.wraps(func)
     def wrapper():
         base = pathlib.Path(base_path).resolve().parent
@@ -46,7 +44,7 @@ def loadPlugin(func=None, *, json_file=None, base_path=None):
     return wrapper()
 
 
-def addBuiltin(name = None):
+def addBuiltin(name=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper():
@@ -84,6 +82,3 @@ def loadLogging(func=None, *, logger_name="metacli"):
             sys.exit(1)
 
     return wrapper()
-
-
-

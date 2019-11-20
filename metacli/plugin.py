@@ -34,7 +34,6 @@ class PluginLoader:
                     self.inject_attribute(obj, name=module['name'])
                     self.parent_plugin.add_command(obj)
 
-
     def inject_attribute(self, obj, **kwargs):
         """
         inject fields from json file
@@ -59,7 +58,7 @@ class PluginLoader:
         """
 
         # Filter out subcommands available for use if plugin run from terminal
-        permission_commands  = self.filter_commands_by_permission_status(obj)
+        permission_commands = self.filter_commands_by_permission_status(obj)
         if isinstance(obj, click.Command) and permission_commands and "shell" not in sys.argv:
             obj.commands = permission_commands
 

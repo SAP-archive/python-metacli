@@ -352,4 +352,3 @@ class DependencyManagement:
                 print("invalid json", e)
             except json.decoder.JSONDecodeError as e:
                 print("text is not json", e)
-

@@ -3,10 +3,10 @@
 
 """Tests for `metacli` package."""
 
-import pytest
 import click
 from metacli.decorators import loadPlugin
 from click.testing import CliRunner
+
 
 @loadPlugin(json_file="./plugin_commands_test.json", base_path=__file__)
 @click.group()
@@ -20,7 +20,7 @@ def test_plugin_loader():
     runner = CliRunner()
 
     # root plugin test
-    assert isinstance(root_plugin,click.Group)
+    assert isinstance(root_plugin, click.Group)
     result = runner.invoke(root_plugin)
     assert result.exit_code == 0
 
@@ -40,5 +40,3 @@ def test_plugin_loader():
     help_result = runner.invoke(root_plugin, ['dog', 'cat', '--help'])
     assert help_result.exit_code == 0
     assert "Welcome to cat\'s world" in help_result.output
-
-

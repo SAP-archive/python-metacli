@@ -1,7 +1,6 @@
 import pytest
 from click.testing import CliRunner
 from metacli import metacli
-import pathlib
 import os
 import shutil
 

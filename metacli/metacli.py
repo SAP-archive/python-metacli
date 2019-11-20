@@ -33,9 +33,9 @@ def get_project_path_and_name():
 
 
 @metacli.command("create_project")
-@click.option("--fromjson", help = "input your schema json file", default="")
-@click.option("--fromyaml", help = "input your schema yaml file", default="")
-@click.option("--include_template", default = False)
+@click.option("--fromjson", help="input your schema json file", default="")
+@click.option("--fromyaml", help="input your schema yaml file", default="")
+@click.option("--include_template", default=False)
 @click.pass_context
 def create_project(ctx, fromjson, fromyaml, include_template):
     """crate new project from schema.yaml or schema.json"""
@@ -53,7 +53,7 @@ def create_project(ctx, fromjson, fromyaml, include_template):
 
     # load template engine
     parent_path = str(pathlib.Path(__file__).parent)
-    loader = jinja2.FileSystemLoader(searchpath= parent_path + '/templates')
+    loader = jinja2.FileSystemLoader(searchpath=parent_path + '/templates')
     env = jinja2.Environment(loader=loader)
 
     if fromjson == "" and fromyaml == "":

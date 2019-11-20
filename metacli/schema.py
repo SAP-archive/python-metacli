@@ -47,7 +47,6 @@ class ProjectGenerator:
 
         return outputs, paths
 
-
     def clean_project(self):
         """
         Delete entire project
@@ -197,22 +196,22 @@ class DataTypeConvertor:
         """
         # Define the mapping between different data type
         self.data_mapping = {
-            'INT':'int',
-            'STRING':'str',
-            'str':'str',
+            'INT': 'int',
+            'STRING': 'str',
+            'str': 'str',
             'None': 'None',
             'boolean': 'boolean',
             'BOOL': "boolean",
             'name': 'str',
             'help': 'str',
-            'prompt':'str',
-            'required':"boolean",
+            'prompt': 'str',
+            'required': "boolean",
             'hidden': "boolean"
         }
 
         # Define the data type and the function which can parse data for writing template
         self.func_mapping = {
-            "boolean" : self.parse_boolean,
+            "boolean": self.parse_boolean,
             "str": self.parse_string,
             "None": self.parse_none,
             "int": self.parse_int
@@ -308,7 +307,7 @@ class SchemaValidator:
                 },
                 "param": {
                     "type": "object",
-                    "properties":{
+                    "properties": {
                         "name": {"type": "string"},
                         "help": {"type": "string"},
                         "type": {"type": "string",
@@ -326,8 +325,7 @@ class SchemaValidator:
 
             "type": "array",
             "items": {"$ref": "#/definitions/group"},
-
-}
+        }
 
     def validate_json(self, data):
         if "groups" not in data:
@@ -413,7 +411,3 @@ class SchemaInfoGenerator:
             params_info.append(param_info)
 
         return params_info
-
-
-
-
