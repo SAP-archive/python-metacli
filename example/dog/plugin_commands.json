@@ -1,0 +1,16 @@
+{
+  "modules": [
+    {
+      "name": "cat",
+      "click_root": "cat",
+      "package_path": "../",
+      "package_name" : "cat.catcli"
+    },
+    {
+      "name": "bird",
+      "click_root": "bird",
+      "package_path": "../",
+      "package_name" : "bird.birdcli"
+    }
+  ]
+}

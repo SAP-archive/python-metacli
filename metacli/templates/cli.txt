@@ -1,0 +1,12 @@
+import click
+
+@click.group()
+@click.pass_context
+def {{project_name}}(ctx):
+    """{{project_name}}"""
+    pass
+
+@{{project_name}}.command()
+@click.pass_context
+def hello_world(ctx):
+    print("hello world", '{{project_name}}')

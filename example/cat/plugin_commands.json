@@ -1,0 +1,10 @@
+{
+  "modules": [
+    {
+      "name": "ragdoll",
+      "click_root": "ragdoll",
+      "package_path": "./",
+      "package_name" : "ragdoll.cli"
+    }
+  ]
+}

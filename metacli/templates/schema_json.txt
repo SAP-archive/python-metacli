@@ -1,0 +1,27 @@
+[
+  {
+    "name": "example_group",
+    "help": "This is an schema example to show how to write a group schema",
+    "hidden": "False",
+    "groups": [],
+    "commands": [
+      {
+        "name": "example_command",
+        "help": "This is an schema example to show how to write a command schema",
+        "hidden": "False",
+        "params": [
+          {
+            "name": "example_argument",
+            "help": "This is an schema example to show how to write an option",
+            "type": "BOOL",
+            "default": "False",
+            "required": "False",
+            "prompt": "None",
+            "param_type": "option"
+          }
+        ]
+      }
+    ],
+    "params": []
+  }
+]
