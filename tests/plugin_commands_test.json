@@ -1,0 +1,10 @@
+{
+"modules": [
+        {
+            "name": "dog",
+            "click_root": "dog",
+            "package_path": "../example/",
+            "package_name" : "dog.dogcli"
+        }
+    ]
+}

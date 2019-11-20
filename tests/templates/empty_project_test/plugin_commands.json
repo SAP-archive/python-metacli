@@ -1,0 +1,10 @@
+{
+  "modules": [
+    {
+      "name": "empty_project_test",
+      "click_root": "empty_project_test",
+      "package_path": "",
+      "package_name" : "empty_project_test.empty_project_testcli"
+    }
+  ]
+}

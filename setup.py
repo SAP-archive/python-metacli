@@ -15,7 +15,8 @@ requirements = ['Click>=6.0',
                 'jsonschema',
                 'stackprinter',
                 'jinja2',
-                'pyyaml'
+                'pyyaml',
+                'jsondiff'
                 ]
 
 setup_requirements = ['pytest-runner', ]
