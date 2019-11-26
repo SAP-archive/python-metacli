@@ -29,6 +29,14 @@ def get_project_path_and_name():
     project_path = input("input project path: ")
     project_name = input("project name: ")
 
+    if project_path == "":
+        click.echo("using default path (current path): " + os.getcwd())
+        project_path = os.getcwd()
+
+    if project_name == "":
+        click.echo("using default name: " + "helloworld")
+        project_name = "helloworld"
+
     return project_path, project_name
 
 
@@ -41,9 +49,6 @@ def create_project(ctx, fromjson, fromyaml, include_template):
     """crate new project from schema.yaml or schema.json"""
 
     project_path, project_name = get_project_path_and_name()
-
-    if project_name == "" or project_name == "":
-        raise ValueError("Empty Project Path or Project Name")
 
     # initial project path and command line folder path
     project_path = project_path + '/' + project_name
