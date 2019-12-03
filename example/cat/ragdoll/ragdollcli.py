@@ -1,7 +1,7 @@
 import click
 from metacli.decorators import loadPlugin
 
-@loadPlugin(json_file="./plugin_commands.json",
+@loadPlugin(json_file="plugin_commands.json",
             base_path=__file__)
 @click.group()
 @click.pass_context

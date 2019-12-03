@@ -4,7 +4,7 @@ from metacli.decorators import loadPlugin, addBuiltin
 
 @addBuiltin(name="shell")
 @addBuiltin(name="schema")
-@loadPlugin(json_file="./plugin_commands.json",
+@loadPlugin(json_file="plugin_commands.json",
             base_path=__file__)
 @click.group()
 @click.option('--version', default="1")

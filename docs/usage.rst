@@ -20,13 +20,13 @@ To add existing plugins to the base plugin:
                {
                 "name" : <name of plugin shown in command line>,
                 "click_root" : <the root command / group in cli.py>,
-                "package_path" : <relative path to plugin folder>,
+                "package_path" : <relative path to plugin folder based on cli file>,
                 "package_name" : <plugin_folder_name>.<cli.py>
                }
            ]
          }
 
-    Please jump to our example to examples if you still have questions here.
+    Please check the example on getting start for real usage.
 
 - Add the decorator, loadPlugin, to the base plugin in the cli.py based on plugin json file
 
@@ -34,7 +34,7 @@ To add existing plugins to the base plugin:
 
         from metacli.decorators import loadPlugin
 
-        @loadPlugin(json_file="./plugin_commands.json",
+        @loadPlugin(json_file="plugin_commands.json",
                     base_path=__file__)
         @click.group()
         def base_plugin():
@@ -43,7 +43,7 @@ To add existing plugins to the base plugin:
 
 
     - Parameters:
-        + json_file: relative path to the plugin json file
+        + json_file: the plugin JSON file's name
         + base_path: current cli file path
 
 - Supported Plugin
@@ -85,7 +85,7 @@ this project, the dependency management need to be used firstly.
 
 Run Command Line
 --------------
-The running for this plugined project is same as Click project, make sure the relative plugin path is correct when you
+The installation is same as other Click project, make sure the relative plugin path is correct when you
 run the base plugin.
 
 + Go into the base plugin folder
@@ -93,6 +93,7 @@ run the base plugin.
 
     .. code-block:: console
 
+        # in baseplugin folder
         pip install --editable .
 
 + To use it:
@@ -182,7 +183,7 @@ Tips:
 
 Templates
 --------------
-We provide templates to help user create their own command line project easily.
+MetaCLI can help you create your own command line project easily.
 
 Simple Templates
 >>>>>>>>>
@@ -191,10 +192,10 @@ To create an simple command line project, run this command in terminal:
 
 .. code-block:: console
 
-    $ metacli create_project
+    $ metacli create_project # (optional) --inlcude_template True
 
-We need to input the path and the name for this new project in terminal. Then we can see this new project.
-In this new project, we have 6 files.
+To use default path and name (current path and helloworld), just press Enter in prompt. Also you can input the path and the name for this new project. Then a new project is generated.
+In this new project, we have these files.
 
 - project core files
     - **setup.py**: the file which can install the project to system
@@ -206,20 +207,20 @@ In this new project, we have 6 files.
 - project plugin files:
     - **plugin_commands.json**: this is a file where you can plugin other command line projects
 
-- template files:\
+- template files (only appear if using --include_template True):\
     - **schema.json**: this is a template file written in JSON, you can define your command structure and name as the examples in this file
 
     - **schema.yaml**: this file is same as schema.json, the only difference is it is written in yaml
 
-This project can be run directly as a hello world example, just run this command in your terminal when you are in this project directory:
+This project can be run directly as a hello world example:
 
 .. code-block:: console
 
+    # in new project's folder
     $ pip install --editable .
 
     $ <project name> hello-world
-
-This is same as how to run a command based on Click Library, and you can get a hello world command when you run you command
+    # output: hello world
 
 .. code-block:: console
 

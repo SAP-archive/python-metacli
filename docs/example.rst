@@ -3,9 +3,9 @@
 ============
 Getting Start
 ============
-We provide an example to help you getting start.
+Here is an simple example to help you getting start.
 
-In example folder, we have 4 independent projects, the file structure is:
+In example folder, we have 4 independent projects. The file structure is:
 
 | -- bird\
 | -- cat\
@@ -14,7 +14,7 @@ In example folder, we have 4 independent projects, the file structure is:
 
 All projects are the simplest command line project based on Click, which means you can run them independently.
 
-However, we want to construct the plugin tool structure as:
+Now, The goal is to construct a command line structure like:
 
 -- dog \
   |-- cat \
@@ -22,18 +22,18 @@ However, we want to construct the plugin tool structure as:
   |-- bird\
 
 
-Now we start to do this step by step.
+Now let's to do this step by step.
 
 1. Configure json file to construct structure
 --------------
 
-Firstly, we want to plug *cat* into *dog*. So, the example/bird/plugin_commands.json needs to be modified.
+Firstly, we want to plug *cat* into *dog*. So, the example/dog/plugin_commands.json needs to be modified.
 
 There are 4 fields here.
 
-+ name: the name you want to use, it will be shown in your console
++ name: the name you want to use for this command, it will be shown in your console
 
-+ click_root: in each command project using Click, there must be an root command for all subcommands. The cat is the root command, so we write cat here.
++ click_root: For each project using Click, there must be an root command for all subcommands. The cat is the root command here.
 
 + package_path: this path indicates where is the plugin project's folder
 
@@ -46,14 +46,15 @@ There are 4 fields here.
         {
           "name": "cat",
           "click_root": "cat",
-          "package_path": "../",
-          "package_name" : "cat.catcli"
+          "package_path": "../cat/",
+          "package_name" : "catcli"
         }
       ]
     }
 
 
-(in our example plugin_commands.json file, we also add mySQLcli and SQLlitecli to show how to add third-party plugins, if you don't need them, feel free to delete them and try our example)
+(in our example plugin_commands.json file, we also add `MySQLcli <https://github.com/dbcli/mycli>`_ and
+`SQLlitecli <https://github.com/dbcli/litecli>`_ to show how to add real plugins, if you don't need them, feel free to delete them and try our example)
 
 2. Add plugin loader
 --------------
@@ -69,7 +70,7 @@ We add the decorator loadPlugin from MetaCLI on the base command and input two p
 
     from metacli.decorators import loadPlugin
 
-    @loadPlugin(json_file="./plugin_commands.json",
+    @loadPlugin(json_file="plugin_commands.json",
         base_path=__file__)
     @click.group()
     @click.option('--version', default = "1")
@@ -77,6 +78,7 @@ We add the decorator loadPlugin from MetaCLI on the base command and input two p
     @click.pass_context
     def dog(ctx, version, verbose) :
         """Welcome to cat's world"""
+        pass
 
 
 3. Collect and install all required packages
@@ -85,14 +87,18 @@ We add the decorator loadPlugin from MetaCLI on the base command and input two p
 After adding the new project into base plugin, the package conflicts must be solved. So we recommend to use our dependency management to check all required packages.
 
 
-Right now, *dog* is our root. So, we need to do dependency management from *dog*. Firstly, run dependency management in the console as a command line to collect all packages
+Right now, *dog* is our root. So, we need to run dependency management inside *dog*. Firstly, run dependency management in the console to collect all packages
 
 .. code-block:: shell
 
     metacli dependency_management
 
 
-The input is current plugin project's absolute path. For example, right now we are in dog, so the path will be  ```~/metacli/example/dog```. Also, you need to input the location where you want to get your requirements.txt. For example, here we also use ```~/metacli/example/dog```. After deleting conflicts in requirements.txt, you can use pip to install all required packages in one command
+The default path is current path, so we can just press enter in prompt, MetaCLI will use current path to collect packages and generate requirement.txt.
+
+(If you want to input by yourself, please use absolute path here.  For example, here we use ```~/metacli/example/dog```.)
+
+After deleting conflicts in requirements.txt, you can use pip to install all required packages in one command
 
 .. code-block:: shell
 
@@ -116,13 +122,13 @@ Then we can see the cat command group. To construct the entire structure, just f
 5. Optional: Builtin Plugins:
 --------------
 
-We have provided some built-in plugins(shell, schema). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "schema" or "shell" indicating help plugin or shell plugin
+We have provided some built-in plugins(shell, schema). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "schema" or "shell".
 
 .. code-block:: python
 
     @addBuiltin(name="shell")
     @addBuiltin(name="schema")
-    @loadPlugin(json_file="./plugin_commands.json",
+    @loadPlugin(json_file="plugin_commands.json",
                 base_path=__file__)
     @click.group()
     @click.option('--version', default = "1")
@@ -130,9 +136,6 @@ We have provided some built-in plugins(shell, schema). If you want to add these 
     @click.pass_context
     def dog(ctx, version, verbose) :
         """Welcome to cat's world"""
+        pass
 
 
-6. Optional: Logging
---------------
-
-MetaCLI can support logging system, please see the usage-logging for more details

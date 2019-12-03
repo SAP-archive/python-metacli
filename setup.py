@@ -17,7 +17,8 @@ requirements = ['Click>=6.0',
                 'jinja2',
                 'pyyaml',
                 'jsondiff',
-                'pytest'
+                'pytest',
+                'sphinx'
                 ]
 
 setup_requirements = ['pytest-runner', ]
