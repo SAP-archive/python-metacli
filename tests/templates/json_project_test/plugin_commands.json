@@ -1,0 +1,10 @@
+{
+  "modules": [
+    {
+      "name": "json_project_test",
+      "click_root": "dog",
+      "package_path": "",
+      "package_name" : "json_project_test.json_project_testcli"
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 import json
 import jsonschema
-import click
 import os
 import logging
 
@@ -27,6 +26,7 @@ def check_valid_json(json_path):
         except json.decoder.JSONDecodeError as e:
             print("text is not json", e)
 
+
 def list_files(startpath):
     """
     Show files structure based on startpath in console
@@ -40,6 +40,7 @@ def list_files(startpath):
         for f in files:
             print('{}{}'.format(subindent, f))
 
+
 # Get logger to write to log file.
 # It has to be initialized every-time, since in a commandline application.
 # the process is short-lived and new process is created for every invocation of a command.
@@ -50,7 +51,8 @@ def get_logger(logger_name):
     logger.setLevel(logging.DEBUG)
     file_name = str(logger_name) + ".log"
     fh = logging.FileHandler(file_name)
-    formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+    formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(filename)s:%(lineno)d} %(levelname)s - %(message)s',
+                                  '%Y-%m-%d %H:%M:%S')
     fh.setFormatter(formatter)
     logger.handlers.clear()
     logger.addHandler(fh)
@@ -73,5 +75,3 @@ def set_context_obj(ctx, my_ctx_obj={}):
     # Allow overwrite of saved attributes (child overwrites parent) relevant for context
     for state, value in my_ctx_obj.items():
         ctx.obj[state] = value
-
-

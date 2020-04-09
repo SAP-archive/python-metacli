@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='{{project_name}}',
+    name='empty_project_test',
     version='0.0',
-    py_modules=['{{project_name}}cli'],
+    py_modules=['empty_project_testcli'],
     install_requires=[
         'click',
     ],
     entry_points='''
         [console_scripts]
-        {{project_name}}={{project_name}}cli:{{root_name}}
+        empty_project_test=empty_project_testcli:empty_project_test
     ''',
 )

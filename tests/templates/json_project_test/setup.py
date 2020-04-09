@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='{{project_name}}',
+    name='json_project_test',
     version='0.0',
-    py_modules=['{{project_name}}cli'],
+    py_modules=['json_project_testcli'],
     install_requires=[
         'click',
     ],
     entry_points='''
         [console_scripts]
-        {{project_name}}={{project_name}}cli:{{root_name}}
+        json_project_test=json_project_testcli:dog
     ''',
 )

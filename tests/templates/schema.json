@@ -1,0 +1,192 @@
+[
+  {
+    "name": "dog",
+    "help": "Welcome to dog's world",
+    "hidden": "False",
+    "groups": [
+      {
+        "name": "cat",
+        "help": "Welcome to cat's world",
+        "hidden": "False",
+        "groups": [
+          {
+            "name": "ragdoll",
+            "help": "Test with superman",
+            "hidden": "False",
+            "groups": [],
+            "commands": [
+              {
+                "name": "welcome",
+                "help": "show ragdoll welcome",
+                "hidden": "False",
+                "params": [
+                  {
+                    "name": "name",
+                    "help": "input your name",
+                    "type": "STRING",
+                    "default": "",
+                    "required": "False",
+                    "prompt": "None",
+                    "param_type": "option"
+                  }
+                ]
+              },
+              {
+                "name": "running",
+                "help": "ragdoll can run",
+                "hidden": "False",
+                "params": [
+                  {
+                    "name": "name",
+                    "help": "input your name",
+                    "type": "STRING",
+                    "default": "",
+                    "required": "False",
+                    "prompt": "None",
+                    "param_type": "option"
+                  }
+                ]
+              }
+            ],
+            "params": []
+          }
+        ],
+        "commands": [
+          {
+            "name": "schema",
+            "help": "Generate cmd structure json and get help info",
+            "hidden": "False",
+            "params": [
+              {
+                "name": "display",
+                "help": "show cmd structure in console",
+                "type": "BOOL",
+                "default": "False",
+                "required": "False",
+                "prompt": "None",
+                "param_type": "option"
+              }
+            ]
+          },
+          {
+            "name": "welcome",
+            "help": "show cat's welcome",
+            "hidden": "False",
+            "params": [
+              {
+                "name": "name",
+                "help": "input your name",
+                "type": "STRING",
+                "default": "",
+                "required": "False",
+                "prompt": "None",
+                "param_type": "option"
+              }
+            ]
+          },
+          {
+            "name": "greeting",
+            "help": "Greeting from cat",
+            "hidden": "False",
+            "params": [
+              {
+                "name": "name",
+                "help": "input your name",
+                "type": "STRING",
+                "default": "",
+                "required": "False",
+                "prompt": "None",
+                "param_type": "option"
+              }
+            ]
+          }
+        ],
+        "params": []
+      },
+      {
+        "name": "bird",
+        "help": "Many different birds are here",
+        "hidden": "False",
+        "groups": [
+          {
+            "name": "bluebird",
+            "help": "bluebird is here",
+            "hidden": "False",
+            "groups": [],
+            "commands": [],
+            "params": []
+          }
+        ],
+        "commands": [
+          {
+            "name": "flying",
+            "help": "bird can flying",
+            "hidden": "False",
+            "params": [
+              {
+                "name": "name",
+                "help": "input your name",
+                "type": "STRING",
+                "default": "",
+                "required": "False",
+                "prompt": "None",
+                "param_type": "option"
+              }
+            ]
+          },
+          {
+            "name": "dove",
+            "help": "Dove is here ",
+            "hidden": "False",
+            "params": []
+          }
+        ],
+        "params": []
+      }
+    ],
+    "commands": [
+      {
+        "name": "schema",
+        "help": "Generate cmd structure json and get help info",
+        "hidden": "False",
+        "params": [
+          {
+            "name": "display",
+            "help": "show cmd structure in console",
+            "type": "BOOL",
+            "default": "False",
+            "required": "False",
+            "prompt": "None",
+            "param_type": "option"
+          }
+        ]
+      },
+      {
+        "name": "shell",
+        "help": "Shell ",
+        "hidden": "False",
+        "params": []
+      }
+    ],
+    "params": [
+      {
+        "name": "version",
+        "help": "None",
+        "type": "STRING",
+        "default": "1",
+        "required": "False",
+        "prompt": "None",
+        "param_type": "option"
+      },
+      {
+        "name": "verbose",
+        "help": "None",
+        "type": "STRING",
+        "default": "",
+        "required": "False",
+        "prompt": "None",
+        "param_type": "option"
+      }
+    ]
+  }
+]

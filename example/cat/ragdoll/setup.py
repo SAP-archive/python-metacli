@@ -1,4 +1,4 @@
-from setuptools import  setup
+from setuptools import setup
 
 setup(
     name='ragdoll',
@@ -8,6 +8,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        ragdoll =cli:ragdoll
+        ragdoll=cli:ragdoll
     ''',
 )

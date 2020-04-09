@@ -25,47 +25,48 @@ def dependency_management(ctx):
     dm.gather_packages_for_plugins_and_check_conflicts()
 
 
+def get_project_path_and_name():
+    project_path = input("input project path (default: ./): ")
+    project_name = input("project name (default: helloworld): ")
+
+    if project_path == "":
+        click.echo("using default path (current path): " + os.getcwd())
+        project_path = os.getcwd()
+
+    if project_name == "":
+        click.echo("using default name: " + "helloworld")
+        project_name = "helloworld"
+
+    return project_path, project_name
+
+
 @metacli.command("create_project")
-@click.option("--fromjson", help = "input your schema json file", default="")
-@click.option("--fromyaml", help = "input your schema yaml file", default="")
-@click.option("--include_template", default = False)
+@click.option("--fromjson", help="input your schema json file", default="")
+@click.option("--fromyaml", help="input your schema yaml file", default="")
+@click.option("--include_template", default=False)
 @click.pass_context
 def create_project(ctx, fromjson, fromyaml, include_template):
     """crate new project from schema.yaml or schema.json"""
 
-    project_path = input("input project path: ")
-    project_name = input("project name: ")
-
-    if project_name == "" or project_name == "":
-        raise ValueError("Empty Project Path or Project Name")
+    project_path, project_name = get_project_path_and_name()
 
     # initial project path and command line folder path
     project_path = project_path + '/' + project_name
-    # TODO: support layer in new project
-    project_cli_path = project_path + '/' + project_name + 'cli'
 
     # initial project generator
-    generator = ProjectGenerator(project_path, project_cli_path, project_name)
+    generator = ProjectGenerator(project_path, project_name)
 
     # load template engine
     parent_path = str(pathlib.Path(__file__).parent)
-    loader = jinja2.FileSystemLoader(searchpath= parent_path + '/templates')
+    loader = jinja2.FileSystemLoader(searchpath=parent_path + '/templates')
     env = jinja2.Environment(loader=loader)
 
     if fromjson == "" and fromyaml == "":
         # initial hello world project with cli.py, setup.py, init.py, plugin_commands.json
-        templates_name = ['__init__.txt', 'setup.txt']
+        templates_name = ['__init__.txt', 'setup.txt', 'cli.txt', 'plugin_commands.txt']
         templates = [env.get_template(name) for name in templates_name]
-        names = ['__init__.py', 'setup.py']
+        names = ['__init__.py', 'setup.py', project_name + 'cli.py', 'plugin_commands.json']
         output, path = generator.create_empty_files(templates, names, project_name)
-
-        templates_name = ['__init__.txt', 'cli.txt', 'plugin_commands.txt']
-        templates = [env.get_template(name) for name in templates_name]
-        cli_layer_names = ['__init__.py', project_name + 'cli.py', 'plugin_commands.json']
-        cli_layer_output, cli_layer_path = generator.create_cli_layer_files(templates, cli_layer_names, project_name)
-
-        output.extend(cli_layer_output)
-        path.extend(cli_layer_path)
 
     else:
         # generate file based on input schema
@@ -80,23 +81,15 @@ def create_project(ctx, fromjson, fromyaml, include_template):
                 schema = yaml.load(yaml_file, yaml.FullLoader)
                 validator.validate_json(schema)
 
-        # generate cli file from data
+        # generate cli file from data (only support one root now)
         root_name = schema[0]['name']
         cli_output, cli_path = generator.generate_cli_from_data(env, schema, root_name)
 
         # generate setup.py, plugin_commands.json, __init__.py
-        templates_name = ['__init__.txt', 'setup.txt']
+        templates_name = ['__init__.txt', 'setup.txt', 'plugin_commands.txt']
         templates = [env.get_template(name) for name in templates_name]
-        names = ['__init__.py', 'setup.py']
+        names = ['__init__.py', 'setup.py', 'plugin_commands.json']
         output, path = generator.create_empty_files(templates, names, root_name)
-
-        templates_name = ['__init__.txt', 'plugin_commands.txt']
-        templates = [env.get_template(name) for name in templates_name]
-        cli_layer_names = ['__init__.py', 'plugin_commands.json']
-        cli_layer_output, cli_layer_path = generator.create_cli_layer_files(templates, cli_layer_names, project_name)
-
-        output.extend(cli_layer_output)
-        path.extend(cli_layer_path)
 
         # add cli.py to output
         output.append(cli_output)

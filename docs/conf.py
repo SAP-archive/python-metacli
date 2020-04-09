@@ -20,9 +20,9 @@
 #
 import os
 import sys
+import metacli
 sys.path.insert(0, os.path.abspath('..'))
 
-import metacli
 
 # -- General configuration ---------------------------------------------
 
@@ -158,6 +158,3 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

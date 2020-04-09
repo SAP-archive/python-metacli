@@ -3,9 +3,8 @@ import cmd
 import json
 import pickle
 import os
-import time
-import warnings
 import sys
+
 
 class MainShell(cmd.Cmd):
 
@@ -17,14 +16,14 @@ class MainShell(cmd.Cmd):
         self.debug_parameters_history = {}
         self.shell_available_commands = []
         self.shell_parameters_current_session = {}
-        self.shell_parameters_previous_session= {}
+        self.shell_parameters_previous_session = {}
         self.transfer_parameters_shells = {}
         self.shell_group_saved_parameters = {}
 
 
 class Shell(MainShell):
 
-    def __init__(self, ctx, root_shell = False):
+    def __init__(self, ctx, root_shell=False):
         MainShell.__init__(self, ctx)
         self.intro = ":q / :quit to quit; :h / :help to list all commands and parameters; :shell_history / " \
                      ":sh to show saved parameters value; :set / :s set parameter value"
@@ -119,7 +118,7 @@ class Shell(MainShell):
         subcommand = self.ctx.command.commands.get(command_name)
 
         if subcommand:
-            shell_stmt = "shell: " + self.group #self.prompt
+            shell_stmt = "shell: " + self.group  # self.prompt
             cmd_stmt = "command: " + command_name
             arg_stmt = "arguments: " + str(args)
 
@@ -131,7 +130,7 @@ class Shell(MainShell):
                 json.dump(arg_stmt, f)
                 f.write("\n\n")
         else:
-            shell_stmt = "shell: " + self.group # self.prompt
+            shell_stmt = "shell: " + self.group  # self.prompt
             cmd_stmt = "command: " + line
 
             with open(file, "a") as f:
@@ -252,8 +251,7 @@ class Shell(MainShell):
 
         self.update_parameter_options_dict(context)
 
-
-    def update_transfer_parameters_shells(self, enter_value = False, exit_value=False, new_prompt="", new_context=None):
+    def update_transfer_parameters_shells(self, enter_value=False, exit_value=False, new_prompt="", new_context=None):
         ''' Save parameters values for group (based on prompt ) for nested levels'''
         self.transfer_parameters_shells["Entering"] = enter_value
         self.transfer_parameters_shells["Exited"] = exit_value
@@ -305,7 +303,7 @@ class Shell(MainShell):
 
         self.save_parameters_file()
 
-    def update_parameter_values_dict(self,command, context):
+    def update_parameter_values_dict(self, command, context):
         ''' Update the parameter dictionary object with new values '''
 
         context_parameters = context.__dict__["params"]
@@ -322,7 +320,7 @@ class Shell(MainShell):
                 param_type = param.__dict__["type"]
                 if param_name in context_parameters and not isinstance(param_type, click.types.BoolParamType):
                     if param_name not in group_param_dict:
-                        group_param_dict[param_name] = [context_parameters[param_name],]
+                        group_param_dict[param_name] = [context_parameters[param_name], ]
                     else:
                         group_param_dict[param_name].append(context_parameters[param_name])
                 self.shell_parameters_current_session[self.group] = group_param_dict
@@ -389,7 +387,7 @@ class Shell(MainShell):
     def do_exit(self):
         ''' Exit the shell '''
         print("Exiting")
-        self.update_transfer_parameters_shells(enter_value= False, exit_value=True)
+        self.update_transfer_parameters_shells(enter_value=False, exit_value=True)
         if self.root_shell:
             if os.path.exists(".parameters_history"):
                 os.remove(".parameters_history")
@@ -449,7 +447,7 @@ class Shell(MainShell):
             parameter = arg_list[0]
             value = arg_list[1]
 
-            group_param_level_dict = self.shell_parameters_current_session[self.group] #self.prompt]
+            group_param_level_dict = self.shell_parameters_current_session[self.group]  # self.prompt]
             if parameter not in self.shell_group_saved_parameters and parameter not in group_param_level_dict:
                 print("Cannot set the nonexistent parameter")
             else:
@@ -457,7 +455,6 @@ class Shell(MainShell):
                 if parameter in self.ctx.obj:
                     self.ctx.obj[parameter] = value
                     self.update_parameter_options_dict(self.ctx, param=parameter)
-
 
                 if parameter in group_param_level_dict:
                     group_param_level_dict[parameter].append(value)
@@ -489,11 +486,10 @@ class Shell(MainShell):
         if "Entering" in self.transfer_parameters_shells and self.transfer_parameters_shells["Entering"]:
             if "parameters" in self.transfer_parameters_shells:
                 for group, param_list in self.transfer_parameters_shells["parameters"].items():
-                    if group == self.group :
+                    if group == self.group:
                         self.shell_parameters_current_session[group] = param_list
                     else:
                         self.shell_parameters_previous_session[group] = param_list
-
 
     def default(self, line):
         """
@@ -504,7 +500,6 @@ class Shell(MainShell):
         # get the command and its parameters
         command_input = line.split()[0]
         args = line.split()[1:]
-
 
         # check user enter quit command
         if command_input == ":quit" or command_input == ":q":
@@ -547,9 +542,8 @@ class Shell(MainShell):
             else:
                 ctx_used = self.ctx
                 is_group = False
-                group = self.group #self.prompt
+                group = self.group  # self.prompt
                 create_shell = False
-
 
             if command.__dict__["name"] not in self.shell_available_commands:
                 print("Error: No such command \"" + command.name + "\"")
@@ -561,12 +555,13 @@ class Shell(MainShell):
                 args_stmt = " = ".join(args)
             else:
                 # get saved or default parameters if user has not passed any args and provide as hint
-                #arg_type, arg_values, saved_args = self.get_saved_parameters(group_name=command_input, is_group=True, command=command)
+                # arg_type, arg_values, saved_args = self.get_saved_parameters
+                # (group_name=command_input, is_group=True, command=command)
                 arg_type, arg_values, com_args, bool_type = self.get_saved_parameters(group_name=group,
                                                                              is_group=is_group, command=command)
                 args_stmt = ", ".join(arg_values)
 
-            if arg_type is "Error":
+            if arg_type == "Error":
                 print(arg_type + ": required parameters " + args_stmt + " need to be set")
             elif com_args:
                 try:
@@ -576,16 +571,17 @@ class Shell(MainShell):
                     self.parse_parameters_and_update_dictionary(ctx_used, com_args, command, bool_type)
 
                 except Exception as e:
-                    print("Error. Could not use " + arg_type + " parameters.")
+                    # print("Error. Could not use " + arg_type + " parameters.")
                     create_shell = False
-            else :
+            else:
                 # invoke the command directly if no args
                 ctx_used.invoke(command)
 
             # check if can create nested shell
             if create_shell:
-                self.update_transfer_parameters_shells(enter_value=True, exit_value=False, new_prompt=group, new_context=ctx_used)
-                new_repl = Shell(ctx_used, root_shell = False)
+                self.update_transfer_parameters_shells(enter_value=True, exit_value=False,
+                                                       new_prompt=group, new_context=ctx_used)
+                new_repl = Shell(ctx_used, root_shell=False)
                 new_repl.group = new_repl.prompt
                 new_repl.prompt = self.prompt + " : " + new_repl.prompt
                 new_repl.cmdloop()

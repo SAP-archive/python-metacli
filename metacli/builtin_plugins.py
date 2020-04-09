@@ -1,9 +1,5 @@
-#from click_repl import repl
-
 import click
 from .shell import Shell
-import os
-import time
 from .schema import SchemaInfoGenerator
 
 
@@ -25,5 +21,3 @@ def schema(ctx, display):
     root = click.get_current_context().__dict__['parent'].__dict__['command']
     schema_generator = SchemaInfoGenerator()
     schema_generator.get_help_info(root, display=display)
-
-

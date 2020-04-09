@@ -9,9 +9,8 @@ from .util import list_files
 
 class ProjectGenerator:
 
-    def __init__(self, project_path, project_cli_path, project_name):
+    def __init__(self, project_path, project_name):
         self.project_path = project_path
-        self.project_cli_path = project_cli_path
         self.project_name = project_name
 
         if os.path.exists(project_path):
@@ -22,7 +21,6 @@ class ProjectGenerator:
                 raise FileExistsError
 
         os.mkdir(project_path)
-        os.mkdir(project_cli_path)
 
     def create_empty_files(self, templates, names, root_name):
         """
@@ -43,31 +41,6 @@ class ProjectGenerator:
                                              name=file_name,
                                              root_name=root_name,
                                              path=self.project_path)
-
-            outputs.append(content)
-            paths.append(path)
-
-        return outputs, paths
-
-    def create_cli_layer_files(self, templates, names, root_name):
-        """
-        Generate an empty command line project based on templates and names in cli folder layer
-        :param templates (list): templates to generate files
-        :param names (list): file names
-        :param root_name:
-        :return: outputs (list): generated content for files
-                 paths (list): generated files' path
-        """
-        outputs = []
-        paths = []
-
-        assert len(templates) == len(names), "The lengths for templates and files are not equal"
-
-        for (template, file_name) in zip(templates, names):
-            content, path = self.create_file(template=template,
-                                             name=file_name,
-                                             root_name=root_name,
-                                             path=self.project_cli_path)
 
             outputs.append(content)
             paths.append(path)
@@ -105,7 +78,7 @@ class ProjectGenerator:
         cli_start_template = env.get_template("cli_start.txt")
         cli_end_template = env.get_template("cli_end.txt")
         cli_output = cli_start_template.render() + cli_body_output + cli_end_template.render(root=root_name)
-        cli_path = self.project_cli_path + '/' + self.project_name + 'cli.py'
+        cli_path = self.project_path + '/' + self.project_name + 'cli.py'
 
         return cli_output, cli_path
 
@@ -223,22 +196,22 @@ class DataTypeConvertor:
         """
         # Define the mapping between different data type
         self.data_mapping = {
-            'INT':'int',
-            'STRING':'str',
-            'str':'str',
+            'INT': 'int',
+            'STRING': 'str',
+            'str': 'str',
             'None': 'None',
             'boolean': 'boolean',
             'BOOL': "boolean",
             'name': 'str',
             'help': 'str',
-            'prompt':'str',
-            'required':"boolean",
+            'prompt': 'str',
+            'required': "boolean",
             'hidden': "boolean"
         }
 
         # Define the data type and the function which can parse data for writing template
         self.func_mapping = {
-            "boolean" : self.parse_boolean,
+            "boolean": self.parse_boolean,
             "str": self.parse_string,
             "None": self.parse_none,
             "int": self.parse_int
@@ -334,7 +307,7 @@ class SchemaValidator:
                 },
                 "param": {
                     "type": "object",
-                    "properties":{
+                    "properties": {
                         "name": {"type": "string"},
                         "help": {"type": "string"},
                         "type": {"type": "string",
@@ -352,8 +325,7 @@ class SchemaValidator:
 
             "type": "array",
             "items": {"$ref": "#/definitions/group"},
-
-}
+        }
 
     def validate_json(self, data):
         if "groups" not in data:
@@ -398,7 +370,7 @@ class SchemaInfoGenerator:
         group = info.__dict__
 
         group_info = {"name": group['name'],
-                      "help": group["help"],
+                      "help": str(group["help"]),
                       "hidden": str(group['hidden']),
                       "groups": [],
                       "commands": [],
@@ -411,7 +383,7 @@ class SchemaInfoGenerator:
             elif isinstance(obj, click.Command):
                 command_info = obj.__dict__
                 cmd = {"name": command_info['name'],
-                       "help": command_info['help'],
+                       "help": str(command_info['help']),
                        "hidden": str(command_info['hidden']),
                        "params": self.get_param_info(obj)}
                 group_info["commands"].append(cmd)
@@ -439,7 +411,3 @@ class SchemaInfoGenerator:
             params_info.append(param_info)
 
         return params_info
-
-
-
-
