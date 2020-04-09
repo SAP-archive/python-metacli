@@ -1,5 +1,6 @@
 import click
 from metacli.decorators import loadPlugin, addBuiltin
+from metacli.util import get_logger
 
 @loadPlugin(json_file="plugin_commands.json",
             base_path=__file__)
@@ -8,7 +9,8 @@ from metacli.decorators import loadPlugin, addBuiltin
 @click.pass_context
 def cat(ctx):
     """Welcome to cat's world"""
-    pass
+    logger = get_logger("cat")
+    logger.debug("Entering cat Command Group")
 
 
 @click.option("--name",

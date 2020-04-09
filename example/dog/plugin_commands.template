@@ -1,6 +1,12 @@
 {
   "modules": [
     {
+      "name": "<command name in shell>",
+      "click_root": "<root command for plugin project>",
+      "package_path": "<relative path to the folder of plugin project>",
+      "package_name" : "<py file name contains the root command>"
+    },
+    {
       "name": "cat",
       "click_root": "cat",
       "package_path": "../cat/",

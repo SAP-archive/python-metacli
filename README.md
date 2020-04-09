@@ -13,30 +13,77 @@ Python package to build metadata driven command line tools (CLI) with out-of-the
 + Documentation: https://metacli.readthedocs.io.
 
 
-## Getting Start
-
-
+## Install
 ```
-git clone https://github.com/sap-staging/python-metacli.git
+$ git clone git@github.com:sap-staging/python-metacli.git
 
-pip metacli/
+$ pip install ./python-metacli/
 
+$ metacli --help        # Test Installation
 ```
 
 ## Features
 + Dynamic Plugin:
-    Plugin another command project within 1 line code
+    Plugin another command project through configuration file and decorator
 
 + Dependency Management:
-    Collect all required packages and detect conflicts & deadloop in plugin command project
+    Collect all required packages and detect conflicts & circular plugins
 
 + Builtin Plugin:
     + Shell: add prompt to any command level, save and retrieve parameters from different levels
     + project description: describe commands structure and arguments for any command
 
++ Logging
+    + Logging: logging for entire command structure
+
 + Templates:
     + Simple Template: generate an empty command project quickly
     + Complex Template: generate an command project based on a schema design in YAML or JSON file
+
+
+## Example
++ Dynamic Plugin
+
+    In example folder, there are 3 independent command projects (cat, bird and dod). The goal is to set up a new command structure:
+    ```
+    dog -
+        |- bird
+        |- cat
+    ```
+    To get a quick start, the plugin_commands.json and decorators are already configured. Please check the `/example/dog/plugin_commands.json` and `/example/dog/dogcli.py` for more details.
+
+    ```shell script
+    $ cd example/dog
+
+    $ metacli dependency_management     # install all dependencies, press enter in prompt to use current path
+    $ pip install -r requirements.txt
+    $ pip install --editable ./         # install new command structure
+
+    $ dog --help        # test new command structure
+    $ dog bird --help
+    $ dog cat --help
+
+    $ dog shell         # test built-in plugin shell
+    $ dog schema --display       # test built-in plugin schema, generate a schema.json to describe current command structure
+    ```
++ Generate new command project
+
+    To generate a new command project which can be plugged in using MetaCLI.
+    ```shell script
+    $ cd example/
+    $ metacli create_project          # press enter in prompt to use default path and name
+    $ pip install --editable ./helloworld
+    $ helloworld --help
+    ```
+
+    To generate a new command project from metadata which can be plugged in using MetaCLI.
+    ```shell script
+    $ cd example/
+    $ metacli create_project --fromjson schema.json   # press enter in prompt to use default path and name
+    # or metacli create_project --fromyaml schema.ymal
+    $ pip install --editable ./helloworld
+    $ helloworld --help
+    ```
 
 
 ## Credits

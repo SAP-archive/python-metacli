@@ -26,8 +26,8 @@ def dependency_management(ctx):
 
 
 def get_project_path_and_name():
-    project_path = input("input project path: ")
-    project_name = input("project name: ")
+    project_path = input("input project path (default: ./): ")
+    project_name = input("project name (default: helloworld): ")
 
     if project_path == "":
         click.echo("using default path (current path): " + os.getcwd())
