@@ -17,7 +17,8 @@ Python package to build metadata driven command line tools (CLI) with out-of-the
 ```
 $ git clone git@github.com:sap-staging/python-metacli.git
 
-$ pip install ./python-metacli/
+$ cd ./python-metacli/
+$ pip install .
 
 $ metacli --help        # Test Installation
 ```
@@ -80,7 +81,7 @@ $ metacli --help        # Test Installation
     ```shell script
     $ cd example/
     $ metacli create_project --fromjson schema.json   # press enter in prompt to use default path and name
-    # or metacli create_project --fromyaml schema.ymal
+    # or metacli create_project --fromyaml schema.yaml
     $ pip install --editable ./helloworld
     $ helloworld --help
     ```
