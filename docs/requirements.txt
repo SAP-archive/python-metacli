@@ -1,0 +1,10 @@
+Click
+click_repl
+pathlib
+jsonschema
+stackprinter
+jinja2
+pyyaml
+jsondiff
+pytest
+sphinx
