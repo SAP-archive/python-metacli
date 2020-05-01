@@ -83,6 +83,10 @@ this project, the dependency management need to be used firstly.
 
         cat requirements.txt | xargs -n 1 pip install
 
+
+.. _built-in-plugin-doc:
+
+
 Built-in Plugin
 --------------
 

@@ -125,7 +125,7 @@ The new command structure is set up and can be installed:
 5. Others
 --------------
 
-+ built-in plugin: see :ref:`built-in-plugin`
++ built-in plugin: see :ref:`built-in-plugin-doc`
 
 + new project generator: see :ref:`new-project-generator`
 
