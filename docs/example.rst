@@ -1,69 +1,74 @@
 .. highlight:: shell
+.. _example-doc:
 
 ============
 Getting Start
 ============
-Here is an simple example to help you getting start.
-
-In example folder, we have 4 independent projects. The file structure is:
-
-| -- bird\
-| -- cat\
-|   |-- ragdoll\
-| -- dog
-
-All projects are the simplest command line project based on Click, which means you can run them independently.
-
-Now, The goal is to construct a command line structure like:
-
--- dog \
-  |-- cat \
-    |--ragdoll\
-  |-- bird\
+In example folder, there are 3 independent command projects (cat, bird and dod). The goal is to set up a new command structure:
 
 
-Now let's to do this step by step.
+::    dog
+        - bird
+        - cat
 
-1. Configure json file to construct structure
+
+All projects are the minimal command line project based on Click, which means they can be run independently.
+
+
+1. Configure json file to set up structure
 --------------
 
-Firstly, we want to plug *cat* into *dog*. So, the example/dog/plugin_commands.json needs to be modified.
+Firstly, to plug *cat* into *dog*, the example/dog/plugin_commands.json needs to be modified.
 
 There are 4 fields here.
 
-+ name: the name you want to use for this command, it will be shown in your console
++ name: the name you want to use for this command, it will be shown in console
 
-+ click_root: For each project using Click, there must be an root command for all subcommands. The cat is the root command here.
++ click_root: For each project using Click, there must be an root command for all subcommands or subgroups. The cat is the root command here.
 
 + package_path: this path indicates where is the plugin project's folder
 
-+ package_name: this is the path from project folder to the .py file contains root command.
++ package_name: this is the path from project folder to the python file contains root command.
 
 .. code-block:: python
 
     {
       "modules": [
-        {
-          "name": "cat",
-          "click_root": "cat",
-          "package_path": "../cat/",
-          "package_name" : "catcli"
-        }
+            {
+              "name": "cat",
+              "click_root": "cat",
+              "package_path": "../cat/",
+              "package_name" : "catcli"
+            }
       ]
     }
 
+To show how to add other plugins on Github like `MySQLcli <https://github.com/dbcli/mycli>`_ and `SQLlitecli <https://github.com/dbcli/litecli>`_:
 
-(in our example plugin_commands.json file, we also add `MySQLcli <https://github.com/dbcli/mycli>`_ and
-`SQLlitecli <https://github.com/dbcli/litecli>`_ to show how to add real plugins, if you don't need them, feel free to delete them and try our example)
+.. code-block:: python
+
+    {
+      "name": "litesql",
+      "click_root": "cli",
+      "package_path": "../litecli/",
+      "package_name" : "litecli.main"
+    },
+    {
+      "name": "mysql",
+      "click_root": "cli",
+      "package_path": "../mycli/",
+      "package_name" : "mycli.main"
+    }
+
+
 
 2. Add plugin loader
 --------------
 
+The next step is to add plugin loader into *dog* project. In dog/dogcli.py, there are two arguments for the loader:
 
-We add the decorator loadPlugin from MetaCLI on the base command and input two parameters.
-
-+ *json_file*: indicates where is the configuration json file
-+ *base_path*: indicates where is the current file, this is helpful to do plugin as an anchor.
++ *json_file*: indicates where is the configuration json file relative to base path.
++ *base_path*: indicates where is the current file, this is helpful to do plugin as an anchor, recommend using __file__ here.
 
 
 .. code-block:: python
@@ -77,28 +82,26 @@ We add the decorator loadPlugin from MetaCLI on the base command and input two p
     @click.option('--verbose', default = "")
     @click.pass_context
     def dog(ctx, version, verbose) :
-        """Welcome to cat's world"""
+        """Welcome to dog's world"""
         pass
 
 
 3. Collect and install all required packages
 --------------
 
-After adding the new project into base plugin, the package conflicts must be solved. So we recommend to use our dependency management to check all required packages.
+After adding the new project into base plugin, the package conflicts must be solved. So the dependency management tools in MetaCLI is recommended to check all required packages.
 
 
-Right now, *dog* is our root. So, we need to run dependency management inside *dog*. Firstly, run dependency management in the console to collect all packages
+Right now, *dog* is our root. So, the following command needs to be run under the /dog folder. We can press enter in prompt to use current path as default for convenient, or we can input the absolute path for the project.
 
 .. code-block:: shell
 
     metacli dependency_management
 
 
-The default path is current path, so we can just press enter in prompt, MetaCLI will use current path to collect packages and generate requirement.txt.
+MetaCLI will use current path to collect packages and generate requirement.txt.
 
-(If you want to input by yourself, please use absolute path here.  For example, here we use ```~/metacli/example/dog```.)
-
-After deleting conflicts in requirements.txt, you can use pip to install all required packages in one command
+After editing and deleting conflicts in requirements.txt, all the required packages can be installed using:
 
 .. code-block:: shell
 
@@ -108,7 +111,7 @@ After deleting conflicts in requirements.txt, you can use pip to install all req
 4. Install and run CLI tools:
 --------------
 
-Now, you can install CLI tools as command click projects.
+The new command structure is set up and can be installed:
 
 .. code-block:: shell
 
@@ -117,25 +120,15 @@ Now, you can install CLI tools as command click projects.
     pip install --editable .
     dog --help
 
-Then we can see the cat command group. To construct the entire structure, just follow these 1-3 steps and get the entire structure.
+ Now, the cat command is shown as a subcommand under the dog. To construct the entire structure, just follow 1-2 steps for bird and get the entire structure.
 
-5. Optional: Builtin Plugins:
+5. Others
 --------------
 
-We have provided some built-in plugins(shell, schema). If you want to add these plugins to any command or group. just use decorator to add them. The argument name should be "schema" or "shell".
++ built-in plugin: see :ref:`built-in-plugin`
 
-.. code-block:: python
++ new project generator: see :ref:`new-project-generator`
 
-    @addBuiltin(name="shell")
-    @addBuiltin(name="schema")
-    @loadPlugin(json_file="plugin_commands.json",
-                base_path=__file__)
-    @click.group()
-    @click.option('--version', default = "1")
-    @click.option('--verbose', default = "")
-    @click.pass_context
-    def dog(ctx, version, verbose) :
-        """Welcome to cat's world"""
-        pass
++ logging: :ref:`logging-doc`
 
 

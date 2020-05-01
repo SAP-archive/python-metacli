@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 
 
-with open('HISTORY.rst') as history_file:
+with open('docs/history.rst') as history_file:
     history = history_file.read()
 
 requirements = ['Click>=6.0',

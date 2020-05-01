@@ -1,10 +1,10 @@
 .. highlight:: shell
 
 =====
-Usage
+Features
 =====
 
-Add Plugin
+Command Plugin
 --------------
 
 To add existing plugins to the base plugin:
@@ -52,6 +52,7 @@ To add existing plugins to the base plugin:
     Here are some open-sourced Click project on Github:
         - mycli : https://www.mycli.net/
         - pgcli : https://www.pgcli.com/
+- example: :ref:`example-doc`
 
 
 Dependency Management
@@ -82,33 +83,10 @@ this project, the dependency management need to be used firstly.
 
         cat requirements.txt | xargs -n 1 pip install
 
-
-Run Command Line
---------------
-The installation is same as other Click project, make sure the relative plugin path is correct when you
-run the base plugin.
-
-+ Go into the base plugin folder
-+ Install the base plugin as common [Click project](https://palletsprojects.com/p/click/):
-
-    .. code-block:: console
-
-        # in baseplugin folder
-        pip install --editable .
-
-+ To use it:
-
-    .. code-block:: console
-
-        <base_plugin> --help
-
 Built-in Plugin
 --------------
 
-MetaCLI support some built-in plugin. You can add these plugins to any command layer within 1 line code.
-
-
-To add builtin plugins:
+MetaCLI support some built-in plugin. These commands can be added using decorator:
 
 .. code-block:: console
 
@@ -124,14 +102,15 @@ To add builtin plugins:
 shell prompt
 >>>>>>>>>
 
-MetaCLI can help you use prompt to run all commands, also can help you save and retrieve parameters in different command layers.
+MetaCLI shell support running all commands in interactive prompt, also support save and retrieve parameters in different command layers.
 
-To use it, add "shell" in your code, and you can run this command in your console:
+To use it, use "shell" as command:
 
 .. code-block:: console
 
     <plugin_name> shell
 
+Features:
 
 + Logs all the commands run in the shell in generated file shell_history
 
@@ -166,11 +145,10 @@ To use it, add "shell" in your code, and you can run this command in your consol
 schema description
 >>>>>>>>>
 
-When a lot of plugins are added into base, it maybe hard for user to know the entire structure for the command lines,
-so we provide the schema describing plugin.
+When a lot of plugins are added into base, it maybe hard for user to know the entire structure for this command.
+so Metacli provide the schema describing plugin.
 
-To use it, add the "schema" plugin into code, and run this command in
-console :
+To use it, add the "schema" plugin into code, and run thE command:
 
 .. code-block:: console
 
@@ -178,14 +156,15 @@ console :
 
 Tips:
     + --display is an optional argument, is this one is added, the structure will be shown in console
-    + "schema.json" will be generated in current folder.This file describe the command, argument and etc.
+    + "schema.json" will be generated in current folder.This file describe the commands, arguments and etcs.
 
+.. _new-project-generator:
 
-Templates
+Project Generator
 --------------
-MetaCLI can help you create your own command line project easily.
+MetaCLI can help to generate a new project easily.
 
-Simple Templates
+Simple Project
 >>>>>>>>>
 
 To create an simple command line project, run this command in terminal:
@@ -195,41 +174,35 @@ To create an simple command line project, run this command in terminal:
     $ metacli create_project # (optional) --inlcude_template True
 
 To use default path and name (current path and helloworld), just press Enter in prompt. Also you can input the path and the name for this new project. Then a new project is generated.
-In this new project, we have these files.
+In this new project, here is the file structure.
 
 - project core files
     - **setup.py**: the file which can install the project to system
 
     - **<name>cli.py**: the file which contains all command
 
-    - **__init__.py**: indicate this project as Python package, you can define your version number here
+    - **__init__.py**: indicate this project as Python package, the version can be defined here
 
 - project plugin files:
-    - **plugin_commands.json**: this is a file where you can plugin other command line projects
+    - **plugin_commands.json**: plugin configuration file
 
 - template files (only appear if using --include_template True):\
-    - **schema.json**: this is a template file written in JSON, you can define your command structure and name as the examples in this file
+    - **schema.json**: this is a template schema file written in JSON.
 
     - **schema.yaml**: this file is same as schema.json, the only difference is it is written in yaml
 
-This project can be run directly as a hello world example:
+This project can be run directly as a hello world command:
 
 .. code-block:: console
 
     # in new project's folder
     $ pip install --editable .
 
-    $ <project name> hello-world
-    # output: hello world
+    $ helloworld --help
 
-.. code-block:: console
-
-    $ hello world <project name>
-
-Complex Templates
+Complex Project from templates
 >>>>>>>>>
-In the above session, we mentioned we have 2 template schema files, we can write these files and use our metalcli to generate a more complex
-project easily.
+In the above session, we have 2 template schema files, MetalCLI can generate a complex project based on schema file easily.
 
 Here we take the JSON format as an example, the YAML file is similar
 
@@ -258,13 +231,13 @@ We list the required fields for each structure:
     - prompt: Boolean String ["True", "False"], define the input method for this parameter
     - param_type: "option" (only support option right now)
 
-We have provided an example in our template file, you can try this example directly:
+The sample template is provided when the argument --include_template is true. A new project can be generated based on this sample schema directly:
 
 .. code-block:: console
 
     $ metacli create_project --fromjson '<path for template JSON file>'
 
-Then, we can get a new project with the command and argument defined in our json file.
+Then, a new project is generated.
 
 The YAML file is similar, the only difference here is:
 
@@ -272,7 +245,7 @@ The YAML file is similar, the only difference here is:
 
     $ metacli create_project --fromyaml '<path for template YAML file>'
 
-In this example, after you install the new project and run our example:
+To use this sample project:
 
 .. code-block:: console
 
@@ -283,6 +256,7 @@ In this example, after you install the new project and run our example:
     $ this is command example_command
     $ parameters: <test parameter>
 
+.. _logging-doc:
 
 Logging
 --------------
