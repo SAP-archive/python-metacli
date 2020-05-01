@@ -11,7 +11,7 @@ To install MetaCLI, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install metacli
+    $ pip install python-metacli
 
 This is the preferred method to install MetaCLI, as it will always install the most recent stable release.
 
@@ -31,13 +31,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/tw4dl/metacli
+    $ git clone git@github.com:SAP/python-metacli.git
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/tw4dl/metacli/tarball/master
+    $ curl  -OL https://github.com/SAP/python-metacli.git
 
 Once you have a copy of the source, you can install it with:
 
@@ -46,5 +46,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/tw4dl/metacli
+.. _Github repo: https://github.com/SAP/python-metacli
 .. _tarball: https://github.com/tw4dl/metacli/tarball/master
